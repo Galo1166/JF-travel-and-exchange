@@ -23,6 +23,7 @@ class Tour extends Model
         'included',
         'excluded',
         'category',
+        'group_size',
     ];
 
     protected $casts = [

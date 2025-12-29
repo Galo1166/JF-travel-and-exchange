@@ -837,6 +837,42 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                 />
               </div>
 
+              <div>
+                <Label htmlFor="groupSize">Group Size (max travelers)</Label>
+                <Input
+                  id="groupSize"
+                  type="number"
+                  min="1"
+                  placeholder="e.g., 20"
+                  value={formData.groupSize || ''}
+                  onChange={(e) => setFormData({ ...formData, groupSize: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="itinerary">Itinerary (comma-separated activities)</Label>
+                <textarea
+                  id="itinerary"
+                  placeholder="Day 1: Activity A, Day 2: Activity B, etc..."
+                  value={Array.isArray(formData.itinerary) ? formData.itinerary.join(', ') : ''}
+                  onChange={(e) => setFormData({ ...formData, itinerary: e.target.value.split(',').map(item => item.trim()).filter(Boolean) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="included">What's Included (comma-separated items)</Label>
+                <textarea
+                  id="included"
+                  placeholder="Accommodation, meals, transport, guide, etc..."
+                  value={Array.isArray(formData.included) ? formData.included.join(', ') : ''}
+                  onChange={(e) => setFormData({ ...formData, included: e.target.value.split(',').map(item => item.trim()).filter(Boolean) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none"
+                  rows={3}
+                />
+              </div>
+
               <div className="flex gap-3 justify-end pt-4 border-t">
                 <Button 
                   type="button" 

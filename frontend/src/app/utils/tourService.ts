@@ -16,6 +16,7 @@ export interface TourData {
   rating?: number;
   description?: string;
   image?: string;
+  groupSize?: number;
   itinerary?: string[];
   included?: string[];
   excluded?: string[];
