@@ -22,8 +22,8 @@ interface ExchangeRateData {
 
 // Default currencies to always include
 const DEFAULT_CURRENCIES: ExchangeRateData[] = [
-  { id: '1', code: 'USD', name: 'US Dollar', rate: 1, flag: '🇺🇸', buy_rate: 1.00, sell_rate: 1.00 },
-  { id: '2', code: 'NGN', name: 'Nigerian Naira', rate: 1540, flag: '🇳🇬', buy_rate: 1530, sell_rate: 1550 },
+  { id: '1', code: 'USD', name: 'US Dollar', rate: 1540, flag: '🇺🇸', buy_rate: 1530, sell_rate: 1550 },
+  { id: '2', code: 'NGN', name: 'Nigerian Naira', rate: 1, flag: '🇳🇬', buy_rate: 1, sell_rate: 1},
   { id: '3', code: 'EUR', name: 'Euro', rate: 0.92, flag: '🇪🇺', buy_rate: 0.91, sell_rate: 0.93 },
   { id: '4', code: 'GBP', name: 'British Pound', rate: 0.79, flag: '🇬🇧', buy_rate: 0.78, sell_rate: 0.80 },
   { id: '5', code: 'AED', name: 'UAE Dirham', rate: 3.67, flag: '🇦🇪', buy_rate: 3.66, sell_rate: 3.68 },
@@ -183,6 +183,35 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
     return !isNaN(num) ? num.toFixed(2) : 'N/A';
   };
 
+  // Compute NGN equivalents for display: convert any rate/buy/sell to Naira
+  const nairaPerUSD = (() => {
+    const usd = exchangeRates.find((r) => r.code === 'USD');
+    if (usd && !isNaN(Number(usd.rate))) return Number(usd.rate);
+    // fallback: if NGN exists and has numeric rate, return it
+    const ngn = exchangeRates.find((r) => r.code === 'NGN');
+    if (ngn && !isNaN(Number(ngn.rate))) return Number(ngn.rate);
+    return 1;
+  })();
+
+  const toNaira = (value?: number | string, code?: string) => {
+    if (value === undefined || value === null) return NaN;
+    const v = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(v)) return NaN;
+
+    if (code === 'NGN') return 1;
+    if (code === 'USD') return !isNaN(nairaPerUSD) ? nairaPerUSD : v;
+
+    // Heuristic: treat large values or specific codes as units-per-USD
+    const unitsPerUsdCodes = ['JPY', 'INR'];
+    if (v > 10 || unitsPerUsdCodes.includes(code || '')) {
+      // v = units per USD -> 1 unit = (1/v) USD -> in NGN = (1/v) * nairaPerUSD
+      return (1 / v) * nairaPerUSD;
+    }
+
+    // Otherwise treat v as USD per unit -> in NGN = v * nairaPerUSD
+    return v * nairaPerUSD;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50" />
@@ -202,7 +231,7 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
         />
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-cyan-600/80" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl font-bold mb-6">Currency Exchange</h1>
+          <h1 className="text-5xl font-bold mb-6">At JF Exchange</h1>
           <p className="text-xl text-blue-100">
             Get the best exchange rates with transparent pricing and instant conversion
           </p>
@@ -349,16 +378,16 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
                   
                   <div className="space-y-3 border-t pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Rate (Naira)</span>
-                      <span className="font-semibold text-gray-900">{safeFixed(rate.rate)}</span>
+                      <span className="text-gray-600 text-sm">Rate (NGN)</span>
+                      <span className="font-semibold text-gray-900">{safeFixed(toNaira(rate.rate, rate.code))}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Buy</span>
-                      <span className="font-semibold text-green-600">{safeFixed(rate.buy_rate ?? rate.buyRate)}</span>
+                      <span className="text-gray-600 text-sm">Buy (NGN)</span>
+                      <span className="font-semibold text-green-600">{safeFixed(toNaira(rate.buy_rate ?? rate.buyRate, rate.code))}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Sell</span>
-                      <span className="font-semibold text-orange-600">{safeFixed(rate.sell_rate ?? rate.sellRate)}</span>
+                      <span className="text-gray-600 text-sm">Sell (NGN)</span>
+                      <span className="font-semibold text-orange-600">{safeFixed(toNaira(rate.sell_rate ?? rate.sellRate, rate.code))}</span>
                     </div>
                   </div>
                 </Card>
