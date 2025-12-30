@@ -150,20 +150,20 @@ export async function createTour(tourData: TourData): Promise<{
     
     // Handle arrays
     if (tourData.itinerary && tourData.itinerary.length > 0) {
-      tourData.itinerary.forEach((item, index) => {
-        formData.append(`itinerary[${index}]`, item);
+      tourData.itinerary.forEach((item) => {
+        formData.append('itinerary[]', item);
       });
     }
     
     if (tourData.included && tourData.included.length > 0) {
-      tourData.included.forEach((item, index) => {
-        formData.append(`included[${index}]`, item);
+      tourData.included.forEach((item) => {
+        formData.append('included[]', item);
       });
     }
     
     if (tourData.excluded && tourData.excluded.length > 0) {
-      tourData.excluded.forEach((item, index) => {
-        formData.append(`excluded[${index}]`, item);
+      tourData.excluded.forEach((item) => {
+        formData.append('excluded[]', item);
       });
     }
     
@@ -237,20 +237,20 @@ export async function updateTour(id: number, tourData: Partial<TourData>): Promi
     
     // Handle arrays
     if (tourData.itinerary && tourData.itinerary.length > 0) {
-      tourData.itinerary.forEach((item, index) => {
-        formData.append(`itinerary[${index}]`, item);
+      tourData.itinerary.forEach((item) => {
+        formData.append('itinerary[]', item);
       });
     }
     
     if (tourData.included && tourData.included.length > 0) {
-      tourData.included.forEach((item, index) => {
-        formData.append(`included[${index}]`, item);
+      tourData.included.forEach((item) => {
+        formData.append('included[]', item);
       });
     }
     
     if (tourData.excluded && tourData.excluded.length > 0) {
-      tourData.excluded.forEach((item, index) => {
-        formData.append(`excluded[${index}]`, item);
+      tourData.excluded.forEach((item) => {
+        formData.append('excluded[]', item);
       });
     }
     

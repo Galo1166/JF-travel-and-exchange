@@ -1,9 +1,13 @@
+import { useState, useEffect } from 'react';
 import { Star, Clock, MapPin, Check, X, Calendar, Users } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { tours } from '../data/mockData';
+import { tours as mockTours } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
+import { getTourById } from '../utils/tourService';
+import { getTourImageUrl } from '../utils/imageHelper';
+import type { TourData } from '../utils/tourService';
 
 interface TourDetailsPageProps {
   tourId: string;
@@ -12,7 +16,65 @@ interface TourDetailsPageProps {
 }
 
 export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }: TourDetailsPageProps) {
-  const tour = tours.find((t) => t.id === tourId);
+  const [tour, setTour] = useState<TourData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [usingMockData, setUsingMockData] = useState(false);
+
+  useEffect(() => {
+    const fetchTour = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Try to fetch from API using numeric ID
+        const numericId = parseInt(tourId, 10);
+        if (!isNaN(numericId)) {
+          const result = await getTourById(numericId);
+          
+          if (result.success && result.tour) {
+            setTour(result.tour);
+            setUsingMockData(false);
+            console.log('Loaded tour from database:', result.tour.id);
+            return;
+          }
+        }
+        
+        // Fall back to mock data using string ID
+        const mockTour = mockTours.find((t) => t.id === tourId);
+        if (mockTour) {
+          setTour(mockTour);
+          setUsingMockData(true);
+          console.log('Using mock tour data for ID:', tourId);
+        } else {
+          console.warn('Tour not found with ID:', tourId);
+          setTour(null);
+        }
+      } catch (error) {
+        console.error('Error fetching tour:', error);
+        // Fall back to mock data
+        const mockTour = mockTours.find((t) => t.id === tourId);
+        if (mockTour) {
+          setTour(mockTour);
+          setUsingMockData(true);
+        } else {
+          setTour(null);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTour();
+  }, [tourId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">Loading tour details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!tour) {
     return (
@@ -30,9 +92,12 @@ export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }
       {/* Hero Image */}
       <div className="relative h-96 bg-gray-900">
         <img
-          src={tour.image}
+          src={getTourImageUrl(tour.image)}
           alt={tour.name}
           className="w-full h-full object-cover opacity-90"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&h=600&fit=crop';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8">
@@ -41,11 +106,16 @@ export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }
               <MapPin className="w-5 h-5" />
               <span>{tour.destination}, {tour.country}</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{tour.name}</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{tour.name}</h1>
+              {usingMockData && (
+                <span className="text-sm bg-blue-500/70 px-3 py-1 rounded text-white">Demo Tour</span>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-4 text-white">
               <div className="flex items-center gap-1">
                 <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{tour.rating} / 5</span>
+                <span className="font-medium">{tour.rating || 5} / 5</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
@@ -84,16 +154,20 @@ export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }
                 <Card className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Daily Itinerary</h2>
                   <div className="space-y-4">
-                    {tour.itinerary.map((item, index) => (
-                      <div key={index} className="flex gap-4">
-                        <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 font-semibold">{index + 1}</span>
+                    {tour.itinerary && tour.itinerary.length > 0 ? (
+                      tour.itinerary.map((item, index) => (
+                        <div key={index} className="flex gap-4">
+                          <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-semibold">{index + 1}</span>
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <p className="text-gray-700">{item}</p>
+                          </div>
                         </div>
-                        <div className="flex-1 pt-1">
-                          <p className="text-gray-700">{item}</p>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-gray-500">No itinerary details available</p>
+                    )}
                   </div>
                 </Card>
               </TabsContent>
@@ -106,12 +180,16 @@ export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }
                       Included
                     </h2>
                     <ul className="space-y-3">
-                      {tour.included.map((item, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          <span className="text-gray-700">{item}</span>
-                        </li>
-                      ))}
+                      {tour.included && tour.included.length > 0 ? (
+                        tour.included.map((item, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                            <span className="text-gray-700">{item}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 text-sm">No details available</p>
+                      )}
                     </ul>
                   </Card>
 
@@ -121,12 +199,16 @@ export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }
                       Not Included
                     </h2>
                     <ul className="space-y-3">
-                      {tour.excluded.map((item, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                          <span className="text-gray-700">{item}</span>
-                        </li>
-                      ))}
+                      {tour.excluded && tour.excluded.length > 0 ? (
+                        tour.excluded.map((item, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            <span className="text-gray-700">{item}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 text-sm">No details available</p>
+                      )}
                     </ul>
                   </Card>
                 </div>
@@ -156,7 +238,7 @@ export function TourDetailsPage({ tourId, onNavigate, selectedCurrency = 'USD' }
                   <Users className="w-5 h-5 text-blue-600" />
                   <div>
                     <p className="text-xs text-gray-600">Group Size</p>
-                    <p className="font-medium">2-15 people</p>
+                    <p className="font-medium"> {tour.groupSize || 15} people max</p>
                   </div>
                 </div>
 

@@ -54,7 +54,8 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
     const fetchExchangeRates = async () => {
       try {
         console.log('🔄 Fetching exchange rates from database...');
-        const response = await fetch('http://localhost:8000/api/exchange-rates');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const response = await fetch(`${apiUrl}/exchange-rates`);
         console.log('📡 API Response status:', response.status);
         
         if (!response.ok) {
@@ -142,13 +143,14 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
       toRate: toRateValue,
     });
 
-    // Formula: If rates are "how many units per 1 USD"
-    // Then: amount in fromCurrency → convert to USD → convert to toCurrency
-    const amountInUSD = parseFloat(amount) / fromRateValue;
-    const converted = amountInUSD * toRateValue;
+    // Formula: All rates are relative to NGN (base currency)
+    // 1 USD = 1540 NGN, so USD rate = 1540
+    // To convert: amount in fromCurrency → (amount * fromRate) = amount in NGN → (amount in NGN / toRate) = amount in toCurrency
+    const amountInNGN = parseFloat(amount) * fromRateValue;
+    const converted = amountInNGN / toRateValue;
     
     console.log('📊 Calculation:', {
-      amountInUSD,
+      amountInNGN,
       converted,
       result: isNaN(converted) ? '0' : converted.toFixed(4),
     });
@@ -328,7 +330,8 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
                       {(() => {
                         const fromRate = parseFloat(String(fromCurrencyData.rate)) || 1;
                         const toRate = parseFloat(String(toCurrencyData.rate)) || 1;
-                        const result = (1 / fromRate) * toRate;
+                        // All rates relative to NGN: 1 fromCurrency = (fromRate / toRate) toCurrency
+                        const result = fromRate / toRate;
                         return result.toFixed(4);
                       })()}
                     </span>

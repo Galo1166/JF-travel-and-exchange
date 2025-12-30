@@ -26,6 +26,8 @@ class Tour extends Model
         'group_size',
     ];
 
+    protected $hidden = [];
+
     protected $casts = [
         'itinerary' => 'array',
         'included' => 'array',
@@ -33,6 +35,16 @@ class Tour extends Model
         'price' => 'decimal:2',
         'rating' => 'decimal:1',
     ];
+
+    protected $appends = ['groupSize'];
+
+    /**
+     * Get the group size using camelCase for API response
+     */
+    public function getGroupSizeAttribute()
+    {
+        return $this->attributes['group_size'] ?? null;
+    }
 
     /**
      * Get all bookings for this tour

@@ -4,8 +4,10 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { TourCard } from '../components/TourCard';
-import { tours } from '../data/mockData';
+import { tours as mockTours } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
+import { getAllTours } from '../utils/tourService';
+import type { TourData } from '../utils/tourService';
 
 interface ToursPageProps {
   onNavigate: (page: string, data?: any) => void;
@@ -18,6 +20,37 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [priceFilter, setPriceFilter] = useState<string>('all');
   const [countryFilter, setCountryFilter] = useState<string>(initialFilter?.filterCountry || 'all');
+  const [tours, setTours] = useState<TourData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [usingMockData, setUsingMockData] = useState(false);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        setIsLoading(true);
+        const result = await getAllTours();
+        
+        if (result.success && result.tours && result.tours.length > 0) {
+          setTours(result.tours);
+          setUsingMockData(false);
+          console.log('Loaded tours from database:', result.tours.length);
+        } else {
+          // Fall back to mock data if API fails or returns no tours
+          console.warn('Failed to fetch tours from API, using mock data');
+          setTours(mockTours);
+          setUsingMockData(true);
+        }
+      } catch (error) {
+        console.error('Error fetching tours:', error);
+        setTours(mockTours);
+        setUsingMockData(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTours();
+  }, []);
 
   useEffect(() => {
     if (initialFilter?.filterCountry) {
@@ -66,28 +99,31 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
           <p className="text-xl text-blue-100">
             Browse through our carefully curated collection of tours
           </p>
+          {usingMockData && (
+            <p className="text-sm text-blue-200 mt-2">📌 Showing demo tours - database tours will appear here when available</p>
+          )}
         </div>
       </section>
 
       {/* Filters Section */}
-      <section className="bg-white border-b sticky top-16 z-40 shadow-sm">
+      <section className="bg-white border-b sticky top-16 z-40 shadow-sm overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-2 sm:gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-3 h-3 sm:w-4 sm:h-4" />
               <Input
                 type="text"
-                placeholder="Search tours..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-7 sm:pl-10 text-xs sm:text-sm"
               />
             </div>
 
             {/* Category Filter */}
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="text-xs sm:text-sm">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -102,8 +138,8 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
 
             {/* Price Filter */}
             <Select value={priceFilter} onValueChange={setPriceFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Price Range" />
+              <SelectTrigger className="text-xs sm:text-sm">
+                <SelectValue placeholder="Price" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Prices</SelectItem>
@@ -115,7 +151,7 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
 
             {/* Country Filter */}
             <Select value={countryFilter} onValueChange={setCountryFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="text-xs sm:text-sm">
                 <SelectValue placeholder="Country" />
               </SelectTrigger>
               <SelectContent>
@@ -148,7 +184,11 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
       {/* Tours Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4">
-          {filteredTours.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">Loading tours...</p>
+            </div>
+          ) : filteredTours.length > 0 ? (
             <>
               <div className="mb-6">
                 <p className="text-gray-600">

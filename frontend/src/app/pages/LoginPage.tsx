@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, Plane } from 'lucide-react';
+import { Mail, Lock, Home } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { auth, googleProvider, appleProvider } from '../../config/firebase';
 import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
 import { saveUserProfile } from '../utils/authService';
+import logo from '../../assets/logo.png';
 
 interface LoginPageProps {
   onNavigate: (page: string) => void;
@@ -98,17 +99,19 @@ export function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back Button */}
+        <Button
+          onClick={() => onNavigate('home')}
+          variant="ghost"
+          className="mb-4 text-white hover:bg-white/10 rounded-full p-2"
+          size="sm"
+        >
+          <Home className="w-5 h-5" />
+        </Button>
+
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-              <Plane className="w-7 h-7 text-blue-600" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl font-bold text-white">JF Travels</h1>
-              <p className="text-sm text-blue-100">Bureau de Change</p>
-            </div>
-          </div>
+          <img src={logo} alt="JF Travels Logo" className="w-20 h-20 mx-auto mb-4" />
         </div>
 
         {/* Login Card */}

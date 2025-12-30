@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Tour } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
+import { getTourImageUrl } from '../utils/imageHelper';
 
 interface TourCardProps {
   tour: Tour;
@@ -17,9 +18,12 @@ export function TourCard({ tour, onViewDetails, selectedCurrency = 'USD' }: Tour
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative h-48 overflow-hidden">
         <img
-          src={tour.image}
+          src={getTourImageUrl(tour.image)}
           alt={tour.name}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop';
+          }}
         />
         <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full shadow-md">
           <span className="font-bold text-blue-600">{formatCurrency(convertedPrice, selectedCurrency)}</span>

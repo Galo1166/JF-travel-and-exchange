@@ -27,9 +27,11 @@ RUN mkdir -p /app/bootstrap/cache && \
     mkdir -p /app/storage && \
     mkdir -p /app/storage/logs && \
     mkdir -p /app/storage/app && \
+    mkdir -p /app/storage/app/public && \
     mkdir -p /app/storage/framework && \
     mkdir -p /app/storage/framework/cache && \
     mkdir -p /app/storage/framework/sessions && \
+    mkdir -p /app/public/storage && \
     chmod -R 775 /app/bootstrap/cache && \
     chmod -R 775 /app/storage
 
@@ -38,10 +40,11 @@ RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
 # Clear and optimize
 RUN php artisan config:cache && \
-    php artisan route:cache
+    php artisan route:cache && \
+    php artisan storage:link || true
 
 # Expose port
 EXPOSE 8000
 
 # Start Laravel
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["sh", "-c", "php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]

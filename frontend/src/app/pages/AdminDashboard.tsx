@@ -873,6 +873,18 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                 />
               </div>
 
+              <div>
+                <Label htmlFor="excluded">What's NOT Included (comma-separated items)</Label>
+                <textarea
+                  id="excluded"
+                  placeholder="Airfare, travel insurance, personal expenses, etc..."
+                  value={Array.isArray(formData.excluded) ? formData.excluded.join(', ') : ''}
+                  onChange={(e) => setFormData({ ...formData, excluded: e.target.value.split(',').map(item => item.trim()).filter(Boolean) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none"
+                  rows={3}
+                />
+              </div>
+
               <div className="flex gap-3 justify-end pt-4 border-t">
                 <Button 
                   type="button" 
