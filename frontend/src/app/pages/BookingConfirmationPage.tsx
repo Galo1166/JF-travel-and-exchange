@@ -93,12 +93,22 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
 
   // Safely extract required fields with defaults
   const confirmationNumber = booking?.id || Math.random().toString(36).substr(2, 9).toUpperCase();
-  const travelDate = booking?.travel_date ? new Date(booking.travel_date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }) : 'TBD';
+  
+  let travelDate = 'TBD';
+  if (booking?.travel_date) {
+    try {
+      travelDate = new Date(booking.travel_date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch (e) {
+      console.error('Error formatting date:', e);
+      travelDate = booking.travel_date;
+    }
+  }
+  
   const travelers = booking?.number_of_travelers || 1;
   const totalPrice = booking?.total_price || 0;
   const fullName = booking?.full_name || 'Guest';

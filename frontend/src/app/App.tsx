@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Toaster } from './components/ui/sonner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
@@ -149,10 +150,12 @@ export default function App() {
         );
       case 'booking-confirmation':
         return (
-          <BookingConfirmationPage 
-            bookingData={pageData} 
-            onNavigate={handleNavigate} 
-          />
+          <ErrorBoundary>
+            <BookingConfirmationPage 
+              bookingData={pageData} 
+              onNavigate={handleNavigate} 
+            />
+          </ErrorBoundary>
         );
       case 'currency':
         return <CurrencyExchangePage onNavigate={handleNavigate} isAuthenticated={isAuthenticated} />;
