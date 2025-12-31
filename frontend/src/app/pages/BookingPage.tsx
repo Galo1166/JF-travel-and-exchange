@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { tours as mockTours } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
 import { getTourById } from '../utils/tourService';
+import { getTourImageUrl } from '../utils/imageHelper';
 import { toast } from 'sonner';
 import type { TourData } from '../utils/tourService';
 
@@ -365,9 +366,12 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
               
               <div className="mb-4">
                 <img
-                  src={tour.image}
+                  src={getTourImageUrl(tour.image)}
                   alt={tour.name}
                   className="w-full h-32 object-cover rounded-lg mb-3"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&h=400&fit=crop';
+                  }}
                 />
                 <h4 className="font-semibold mb-1">{tour.name}</h4>
                 <p className="text-sm text-gray-600">{tour.destination}, {tour.country}</p>
