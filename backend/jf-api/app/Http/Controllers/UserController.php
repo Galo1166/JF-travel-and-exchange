@@ -161,27 +161,36 @@ class UserController extends Controller
 
             Log::info('UserController@getBookings: Fetching bookings for user', ['user_id' => $user->id]);
 
-            $bookings = \App\Models\TourBooking::where('user_id', $user->id)
-                ->with('tour')
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($booking) {
-                    return [
-                        'id' => $booking->id,
-                        'tour_id' => $booking->tour_id,
-                        'tour_name' => $booking->tour->name ?? 'Unknown Tour',
-                        'booking_date' => $booking->booking_date,
-                        'travel_date' => $booking->travel_date,
-                        'number_of_travelers' => $booking->number_of_travelers,
-                        'total_price' => $booking->total_price,
-                        'status' => $booking->status,
-                        'full_name' => $booking->full_name,
-                        'email' => $booking->email,
-                        'phone' => $booking->phone,
-                        'payment_method' => $booking->payment_method,
-                        'created_at' => $booking->created_at,
-                    ];
-                });
+            try {
+                $bookings = \App\Models\TourBooking::where('user_id', $user->id)
+                    ->with('tour')
+                    ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->map(function ($booking) {
+                        return [
+                            'id' => $booking->id,
+                            'tour_id' => $booking->tour_id,
+                            'tour_name' => $booking->tour->name ?? 'Unknown Tour',
+                            'booking_date' => $booking->booking_date,
+                            'travel_date' => $booking->travel_date,
+                            'number_of_travelers' => $booking->number_of_travelers,
+                            'total_price' => $booking->total_price,
+                            'status' => $booking->status,
+                            'full_name' => $booking->full_name,
+                            'email' => $booking->email,
+                            'phone' => $booking->phone,
+                            'payment_method' => $booking->payment_method,
+                            'created_at' => $booking->created_at,
+                        ];
+                    });
+            } catch (\Illuminate\Database\QueryException $qe) {
+                Log::error('UserController@getBookings: Database query failed', ['error' => $qe->getMessage()]);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Database unavailable',
+                    'details' => $qe->getMessage(),
+                ], 503);
+            }
 
             Log::info('UserController@getBookings: Retrieved bookings', ['count' => count($bookings)]);
 
