@@ -106,10 +106,10 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
       </section>
 
       {/* Filters Section */}
-      <section className="bg-white border-b sticky top-16 z-40 shadow-sm overflow-x-auto">
+      <section className="bg-white border-b sticky top-16 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-4 gap-2 sm:gap-4">
-            {/* Search */}
+          {/* Search Row */}
+          <div className="mb-4 max-w-md">
             <div className="relative">
               <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-3 h-3 sm:w-4 sm:h-4" />
               <Input
@@ -117,10 +117,13 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-7 sm:pl-10 text-xs sm:text-sm"
+                className="pl-7 sm:pl-10 text-xs sm:text-sm w-full"
               />
             </div>
+          </div>
 
+          {/* Filters Row */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             {/* Category Filter */}
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="text-xs sm:text-sm">
