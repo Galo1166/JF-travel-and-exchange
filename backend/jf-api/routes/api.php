@@ -17,6 +17,8 @@ Route::prefix('auth')->group(function () {
 Route::prefix('users')->group(function () {
     Route::get('by-email/{email}', [UserController::class, 'getByEmail']);
     Route::get('me', [UserController::class, 'me']);
+    Route::post('profile', [UserController::class, 'updateProfile']);
+    Route::get('bookings', [UserController::class, 'getBookings']);
 });
 
 // Tour routes

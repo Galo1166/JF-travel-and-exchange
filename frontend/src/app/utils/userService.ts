@@ -9,6 +9,8 @@ export interface UserData {
   id: number;
   email: string;
   name?: string;
+  phone_number?: string;
+  preferred_currency?: string;
   role?: string;
   created_at?: string;
 }
@@ -67,6 +69,130 @@ export async function getUserByEmail(email: string): Promise<{
     return {
       success: false,
       error: errorMsg || 'Failed to fetch user',
+    };
+  }
+}
+
+/**
+ * Get current authenticated user profile
+ */
+export async function getUserProfile(token: string): Promise<{
+  success: boolean;
+  user?: UserData;
+  error?: string;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return {
+        success: false,
+        error: `Failed to fetch profile: ${response.statusText}`,
+      };
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      user: data.user || data,
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return {
+      success: false,
+      error: errorMsg || 'Failed to fetch profile',
+    };
+  }
+}
+
+/**
+ * Update user profile (phone number and preferred currency)
+ */
+export async function updateUserProfile(
+  token: string,
+  data: {
+    phone_number?: string;
+    preferred_currency?: string;
+  }
+): Promise<{
+  success: boolean;
+  user?: UserData;
+  error?: string;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        success: false,
+        error: errorData.error || 'Failed to update profile',
+      };
+    }
+
+    const result = await response.json();
+    return {
+      success: true,
+      user: result.user || result,
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return {
+      success: false,
+      error: errorMsg || 'Failed to update profile',
+    };
+  }
+}
+
+/**
+ * Get user's bookings
+ */
+export async function getUserBookings(token: string): Promise<{
+  success: boolean;
+  bookings?: any[];
+  error?: string;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/bookings`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return {
+        success: false,
+        error: `Failed to fetch bookings: ${response.statusText}`,
+      };
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      bookings: data.bookings || [],
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return {
+      success: false,
+      error: errorMsg || 'Failed to fetch bookings',
     };
   }
 }
