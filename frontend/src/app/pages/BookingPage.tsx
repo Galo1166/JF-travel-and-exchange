@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, Calendar, Users, CreditCard } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { tours } from '../data/mockData';
+import { tours as mockTours } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
+import { getTourById } from '../utils/tourService';
 import { toast } from 'sonner';
+import type { TourData } from '../utils/tourService';
 
 interface BookingPageProps {
   tourId: string;
@@ -17,8 +19,52 @@ interface BookingPageProps {
 }
 
 export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurrency = 'USD' }: BookingPageProps) {
-  const tour = tours.find((t) => t.id === tourId);
+  const [tour, setTour] = useState<TourData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    const fetchTour = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Try to fetch from API using numeric ID
+        const numericId = parseInt(tourId, 10);
+        if (!isNaN(numericId)) {
+          const result = await getTourById(numericId);
+          
+          if (result.success && result.tour) {
+            setTour(result.tour);
+            console.log('Loaded tour from database:', result.tour.id);
+            return;
+          }
+        }
+        
+        // Fall back to mock data using string ID
+        const mockTour = mockTours.find((t) => t.id === tourId);
+        if (mockTour) {
+          setTour(mockTour);
+          console.log('Using mock tour data for ID:', tourId);
+        } else {
+          console.warn('Tour not found with ID:', tourId);
+          setTour(null);
+        }
+      } catch (error) {
+        console.error('Error fetching tour:', error);
+        // Fall back to mock data
+        const mockTour = mockTours.find((t) => t.id === tourId);
+        if (mockTour) {
+          setTour(mockTour);
+        } else {
+          setTour(null);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTour();
+  }, [tourId]);
   const [formData, setFormData] = useState({
     date: '',
     travelers: 1,
@@ -27,6 +73,16 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
     phone: '',
     paymentMethod: 'paystack'
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">Loading tour details...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!tour) {
     return (
