@@ -33,7 +33,8 @@ interface BookingConfirmationPageProps {
 }
 
 export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConfirmationPageProps) {
-  if (!bookingData || !bookingData.booking || !bookingData.tour) {
+  // Defensive checks for missing data
+  if (!bookingData) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4">
@@ -52,7 +53,65 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
   }
 
   const { booking, tour } = bookingData;
-  const confirmationNumber = booking.id || Math.random().toString(36).substr(2, 9).toUpperCase();
+
+  // Check if booking and tour exist
+  if (!booking || typeof booking !== 'object') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          <Card className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Invalid Booking Data</h2>
+            <p className="text-gray-600 mb-6">
+              The booking information is missing or invalid. Please try again.
+            </p>
+            <Button onClick={() => onNavigate('tours')} className="bg-blue-600 hover:bg-blue-700">
+              Back to Tours
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!tour || typeof tour !== 'object') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          <Card className="p-8 text-center">
+            <h2 className="text-2xl font-bold mb-4">Tour Information Missing</h2>
+            <p className="text-gray-600 mb-6">
+              The tour details could not be loaded. Please try again.
+            </p>
+            <Button onClick={() => onNavigate('tours')} className="bg-blue-600 hover:bg-blue-700">
+              Back to Tours
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Safely extract required fields with defaults
+  const confirmationNumber = booking?.id || Math.random().toString(36).substr(2, 9).toUpperCase();
+  const travelDate = booking?.travel_date ? new Date(booking.travel_date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }) : 'TBD';
+  const travelers = booking?.number_of_travelers || 1;
+  const totalPrice = booking?.total_price || 0;
+  const fullName = booking?.full_name || 'Guest';
+  const email = booking?.email || 'Not provided';
+  const phone = booking?.phone || 'Not provided';
+  const paymentMethod = booking?.payment_method || 'Unknown';
+  const status = booking?.status || 'pending';
+  const tourName = tour?.name || 'Tour';
+  const destination = tour?.destination || 'Destination';
+  const country = tour?.country || 'Country';
+  const duration = tour?.duration || 'Duration TBD';
+  const price = tour?.price || 0;
+  const tourImage = tour?.image;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12">
@@ -84,22 +143,22 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
               
               <div className="flex gap-4 mb-4">
                 <img
-                  src={getTourImageUrl(tour.image)}
-                  alt={tour.name}
+                  src={getTourImageUrl(tourImage)}
+                  alt={tourName}
                   className="w-32 h-32 object-cover rounded-lg"
                   onError={(e) => {
                     e.currentTarget.src = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=200&h=200&fit=crop';
                   }}
                 />
                 <div className="flex-1">
-                  <h4 className="font-semibold text-xl mb-1">{tour.name}</h4>
+                  <h4 className="font-semibold text-xl mb-1">{tourName}</h4>
                   <div className="flex items-center gap-1 text-gray-600 mb-2">
                     <MapPin className="w-4 h-4" />
-                    <span>{tour.destination}, {tour.country}</span>
+                    <span>{destination}, {country}</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-600">
                     <Calendar className="w-4 h-4" />
-                    <span>{tour.duration}</span>
+                    <span>{duration}</span>
                   </div>
                 </div>
               </div>
@@ -115,14 +174,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
                     <Calendar className="w-4 h-4" />
                     Departure Date
                   </span>
-                  <span className="font-medium">
-                    {new Date(booking.travel_date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </span>
+                  <span className="font-medium">{travelDate}</span>
                 </div>
 
                 <div className="flex justify-between py-2 border-b">
@@ -130,7 +182,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
                     <Users className="w-4 h-4" />
                     Number of Travelers
                   </span>
-                  <span className="font-medium">{booking.number_of_travelers}</span>
+                  <span className="font-medium">{travelers}</span>
                 </div>
 
                 <div className="flex justify-between py-2 border-b">
@@ -138,13 +190,13 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
                     <CreditCard className="w-4 h-4" />
                     Payment Method
                   </span>
-                  <span className="font-medium capitalize">{booking.payment_method}</span>
+                  <span className="font-medium capitalize">{paymentMethod}</span>
                 </div>
 
                 <div className="flex justify-between py-2">
                   <span className="text-gray-600">Booking Status</span>
                   <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium capitalize">
-                    {booking.status}
+                    {status}
                   </span>
                 </div>
               </div>
@@ -157,7 +209,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
               <div className="space-y-4">
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-gray-600">Full Name</span>
-                  <span className="font-medium">{booking.full_name}</span>
+                  <span className="font-medium">{fullName}</span>
                 </div>
 
                 <div className="flex justify-between py-2 border-b">
@@ -165,7 +217,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
                     <Mail className="w-4 h-4" />
                     Email
                   </span>
-                  <span className="font-medium">{booking.email}</span>
+                  <span className="font-medium">{email}</span>
                 </div>
 
                 <div className="flex justify-between py-2">
@@ -173,7 +225,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
                     <Phone className="w-4 h-4" />
                     Phone
                   </span>
-                  <span className="font-medium">{booking.phone}</span>
+                  <span className="font-medium">{phone}</span>
                 </div>
               </div>
             </Card>
@@ -187,26 +239,26 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
               <div className="space-y-3 mb-4 pb-4 border-b">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Price per person</span>
-                  <span className="font-medium">${tour.price.toFixed(2)}</span>
+                  <span className="font-medium">${price.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Number of travelers</span>
-                  <span className="font-medium">×{booking.number_of_travelers}</span>
+                  <span className="font-medium">×{travelers}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center mb-6">
                 <span className="font-bold">Total Amount</span>
                 <span className="text-2xl font-bold text-green-600">
-                  ${typeof booking.total_price === 'string' 
-                    ? parseFloat(booking.total_price).toFixed(2) 
-                    : booking.total_price.toFixed(2)}
+                  ${typeof totalPrice === 'string' 
+                    ? parseFloat(totalPrice).toFixed(2) 
+                    : totalPrice.toFixed(2)}
                 </span>
               </div>
 
               <div className="bg-blue-50 p-4 rounded-lg mb-6">
                 <p className="text-sm text-blue-800">
-                  <strong>Next Steps:</strong> A confirmation email has been sent to {booking.email}. Please check your inbox for booking details and instructions.
+                  <strong>Next Steps:</strong> A confirmation email has been sent to {email}. Please check your inbox for booking details and instructions.
                 </p>
               </div>
 
