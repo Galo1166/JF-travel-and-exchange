@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Check, Calendar, Users, CreditCard } from 'lucide-react';
+import { Check, Calendar, Users, CreditCard, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { tours as mockTours } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
 import { getTourById } from '../utils/tourService';
 import { getTourImageUrl } from '../utils/imageHelper';
+import { createBooking } from '../utils/bookingService';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import type { TourData } from '../utils/tourService';
 
@@ -20,16 +21,27 @@ interface BookingPageProps {
 }
 
 export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurrency = 'USD' }: BookingPageProps) {
+  const { user } = useAuth();
   const [tour, setTour] = useState<TourData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
+  
+  const [formData, setFormData] = useState({
+    date: '',
+    travelers: 1,
+    fullName: '',
+    email: '',
+    phone: '',
+    paymentMethod: 'paystack'
+  });
 
+  // Fetch tour data
   useEffect(() => {
     const fetchTour = async () => {
       try {
         setIsLoading(true);
         
-        // Try to fetch from API using numeric ID
         const numericId = parseInt(tourId, 10);
         if (!isNaN(numericId)) {
           const result = await getTourById(numericId);
@@ -41,7 +53,6 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
           }
         }
         
-        // Fall back to mock data using string ID
         const mockTour = mockTours.find((t) => t.id === tourId);
         if (mockTour) {
           setTour(mockTour);
@@ -52,7 +63,6 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
         }
       } catch (error) {
         console.error('Error fetching tour:', error);
-        // Fall back to mock data
         const mockTour = mockTours.find((t) => t.id === tourId);
         if (mockTour) {
           setTour(mockTour);
@@ -66,14 +76,17 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
 
     fetchTour();
   }, [tourId]);
-  const [formData, setFormData] = useState({
-    date: '',
-    travelers: 1,
-    fullName: '',
-    email: '',
-    phone: '',
-    paymentMethod: 'paystack'
-  });
+
+  // Prefill user profile data
+  useEffect(() => {
+    if (user && step === 2) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.displayName || '',
+        email: user.email || '',
+      }));
+    }
+  }, [user, step]);
 
   if (isLoading) {
     return (
@@ -120,7 +133,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
   const convertedPrice = convertCurrency(tour.price, 'USD', selectedCurrency);
   const totalPrice = convertedPrice * formData.travelers;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (step === 1) {
@@ -135,12 +148,47 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
         return;
       }
       setStep(3);
-    } else {
-      // Process booking
-      toast.success('Booking confirmed! Redirecting to dashboard...');
-      setTimeout(() => {
-        onNavigate('dashboard');
-      }, 2000);
+    } else if (step === 3) {
+      await processBooking();
+    }
+  };
+
+  const processBooking = async () => {
+    try {
+      setIsSubmitting(true);
+
+      const bookingData = {
+        tour_id: typeof tour.id === 'string' ? parseInt(tour.id, 10) : tour.id,
+        travel_date: formData.date,
+        number_of_travelers: formData.travelers,
+        total_price: totalPrice,
+        full_name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        payment_method: formData.paymentMethod,
+        booking_date: new Date().toISOString().split('T')[0],
+        status: 'pending',
+      };
+
+      console.log('Processing booking:', bookingData);
+
+      const result = await createBooking(bookingData);
+
+      if (result.success) {
+        toast.success('Booking confirmed successfully!');
+        // Store booking info in session/state for confirmation page
+        onNavigate('booking-confirmation', { 
+          booking: result.booking,
+          tour: tour 
+        });
+      } else {
+        toast.error(result.error || 'Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast.error('An error occurred while processing your booking');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -153,7 +201,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                     step >= s ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
                   }`}
                 >
@@ -167,10 +215,10 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-8 mt-2">
-            <span className="text-sm text-gray-600">Tour Details</span>
-            <span className="text-sm text-gray-600">Your Info</span>
-            <span className="text-sm text-gray-600">Payment</span>
+          <div className="flex justify-center gap-8 mt-4 text-sm">
+            <span className={step >= 1 ? 'text-blue-600 font-medium' : 'text-gray-600'}>Tour Details</span>
+            <span className={step >= 2 ? 'text-blue-600 font-medium' : 'text-gray-600'}>Your Info</span>
+            <span className={step >= 3 ? 'text-blue-600 font-medium' : 'text-gray-600'}>Payment</span>
           </div>
         </div>
 
@@ -190,7 +238,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                     <div>
                       <Label htmlFor="date" className="flex items-center gap-2 mb-2">
                         <Calendar className="w-4 h-4" />
-                        Departure Date
+                        Departure Date *
                       </Label>
                       <Input
                         id="date"
@@ -199,29 +247,54 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                         required
+                        className="text-base"
                       />
                     </div>
 
                     <div>
                       <Label htmlFor="travelers" className="flex items-center gap-2 mb-2">
                         <Users className="w-4 h-4" />
-                        Number of Travelers
+                        Number of Travelers *
                       </Label>
-                      <Select
-                        value={formData.travelers.toString()}
-                        onValueChange={(value) => setFormData({ ...formData, travelers: parseInt(value) })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                            <SelectItem key={num} value={num.toString()}>
-                              {num} {num === 1 ? 'Person' : 'People'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex items-center gap-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setFormData({ 
+                            ...formData, 
+                            travelers: Math.max(1, formData.travelers - 1) 
+                          })}
+                          className="w-12 h-12"
+                        >
+                          −
+                        </Button>
+                        <Input
+                          id="travelers"
+                          type="number"
+                          min="1"
+                          max="50"
+                          value={formData.travelers}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (!isNaN(val) && val >= 1 && val <= 50) {
+                              setFormData({ ...formData, travelers: val });
+                            }
+                          }}
+                          className="w-24 text-center text-lg font-semibold"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setFormData({ 
+                            ...formData, 
+                            travelers: Math.min(50, formData.travelers + 1) 
+                          })}
+                          className="w-12 h-12"
+                        >
+                          +
+                        </Button>
+                        <span className="text-gray-600 ml-4">{formData.travelers} {formData.travelers === 1 ? 'person' : 'people'}</span>
+                      </div>
                     </div>
 
                     <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
@@ -238,8 +311,15 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                       <p className="text-gray-600">Please provide your contact details</p>
                     </div>
 
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+                      <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-blue-800">
+                        These details will be used for your booking confirmation and communication.
+                      </p>
+                    </div>
+
                     <div>
-                      <Label htmlFor="fullName">Full Name</Label>
+                      <Label htmlFor="fullName">Full Name *</Label>
                       <Input
                         id="fullName"
                         type="text"
@@ -251,7 +331,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                     </div>
 
                     <div>
-                      <Label htmlFor="email">Email Address</Label>
+                      <Label htmlFor="email">Email Address *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -263,11 +343,11 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                     </div>
 
                     <div>
-                      <Label htmlFor="phone">Phone Number</Label>
+                      <Label htmlFor="phone">Phone Number *</Label>
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+234 123 456 7890"
+                        placeholder="+1 (555) 123-4567"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         required
@@ -275,7 +355,12 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                     </div>
 
                     <div className="flex gap-3">
-                      <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setStep(1)} 
+                        className="flex-1"
+                      >
                         Back
                       </Button>
                       <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
@@ -296,61 +381,46 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                     <div className="space-y-3">
                       <Label className="flex items-center gap-2 mb-2">
                         <CreditCard className="w-4 h-4" />
-                        Payment Method
+                        Payment Method *
                       </Label>
                       
-                      <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
-                        <input
-                          type="radio"
-                          name="payment"
-                          value="paystack"
-                          checked={formData.paymentMethod === 'paystack'}
-                          onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                          className="mr-3"
-                        />
-                        <div>
-                          <p className="font-medium">Paystack</p>
-                          <p className="text-sm text-gray-500">Pay securely with card</p>
-                        </div>
-                      </label>
-
-                      <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
-                        <input
-                          type="radio"
-                          name="payment"
-                          value="paypal"
-                          checked={formData.paymentMethod === 'paypal'}
-                          onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                          className="mr-3"
-                        />
-                        <div>
-                          <p className="font-medium">PayPal</p>
-                          <p className="text-sm text-gray-500">Pay with PayPal account</p>
-                        </div>
-                      </label>
-
-                      <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
-                        <input
-                          type="radio"
-                          name="payment"
-                          value="bank"
-                          checked={formData.paymentMethod === 'bank'}
-                          onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                          className="mr-3"
-                        />
-                        <div>
-                          <p className="font-medium">Bank Transfer</p>
-                          <p className="text-sm text-gray-500">Direct bank transfer</p>
-                        </div>
-                      </label>
+                      {[
+                        { value: 'paystack', label: 'Paystack', desc: 'Pay securely with card' },
+                        { value: 'paypal', label: 'PayPal', desc: 'Pay with PayPal account' },
+                        { value: 'bank', label: 'Bank Transfer', desc: 'Direct bank transfer' },
+                      ].map((method) => (
+                        <label key={method.value} className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-blue-600 transition-colors">
+                          <input
+                            type="radio"
+                            name="payment"
+                            value={method.value}
+                            checked={formData.paymentMethod === method.value}
+                            onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                            className="mr-3"
+                          />
+                          <div>
+                            <p className="font-medium">{method.label}</p>
+                            <p className="text-sm text-gray-500">{method.desc}</p>
+                          </div>
+                        </label>
+                      ))}
                     </div>
 
                     <div className="flex gap-3">
-                      <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setStep(2)} 
+                        className="flex-1"
+                      >
                         Back
                       </Button>
-                      <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
-                        Confirm Booking
+                      <Button 
+                        type="submit" 
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? 'Processing...' : 'Confirm Booking'}
                       </Button>
                     </div>
                   </div>
@@ -400,7 +470,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
               </div>
 
               <p className="text-xs text-gray-500 mt-4">
-                * All prices are in USD. Free cancellation up to 24 hours before departure.
+                * All prices shown in {selectedCurrency}. Free cancellation up to 24 hours before departure.
               </p>
             </Card>
           </div>

@@ -8,6 +8,7 @@ import { DestinationsPage } from './pages/DestinationsPage';
 import { ToursPage } from './pages/ToursPage';
 import { TourDetailsPage } from './pages/TourDetailsPage';
 import { BookingPage } from './pages/BookingPage';
+import { BookingConfirmationPage } from './pages/BookingConfirmationPage';
 import { CurrencyExchangePage } from './pages/CurrencyExchangePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -24,6 +25,7 @@ type Page =
   | 'tours' 
   | 'tour-details' 
   | 'booking' 
+  | 'booking-confirmation'
   | 'currency'
   | 'login'
   | 'register'
@@ -34,6 +36,8 @@ type Page =
 interface PageData {
   tourId?: string;
   filterCountry?: string;
+  booking?: any;
+  tour?: any;
 }
 
 export default function App() {
@@ -142,6 +146,13 @@ export default function App() {
           />
         ) : (
           <HomePage onNavigate={handleNavigate} />
+        );
+      case 'booking-confirmation':
+        return (
+          <BookingConfirmationPage 
+            bookingData={pageData} 
+            onNavigate={handleNavigate} 
+          />
         );
       case 'currency':
         return <CurrencyExchangePage onNavigate={handleNavigate} isAuthenticated={isAuthenticated} />;
