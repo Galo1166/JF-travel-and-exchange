@@ -110,7 +110,9 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
   }
   
   const travelers = booking?.number_of_travelers || 1;
-  const totalPrice = booking?.total_price || 0;
+  const totalPrice = typeof booking?.total_price === 'string' 
+    ? parseFloat(booking.total_price) || 0 
+    : (booking?.total_price || 0);
   const fullName = booking?.full_name || 'Guest';
   const email = booking?.email || 'Not provided';
   const phone = booking?.phone || 'Not provided';
@@ -120,7 +122,9 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
   const destination = tour?.destination || 'Destination';
   const country = tour?.country || 'Country';
   const duration = tour?.duration || 'Duration TBD';
-  const price = tour?.price || 0;
+  const price = typeof tour?.price === 'string' 
+    ? parseFloat(tour.price) || 0 
+    : (tour?.price || 0);
   const tourImage = tour?.image;
 
   return (
