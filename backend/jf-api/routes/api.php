@@ -5,11 +5,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ExchangeRateController;
+use App\Http\Controllers\UserController;
 
 // Auth routes
 Route::prefix('auth')->group(function () {
     Route::post('check-admin', [AuthController::class, 'checkAdmin']);
     Route::post('firebase-signup', [AuthController::class, 'firebaseSignup']);
+});
+
+// User routes
+Route::prefix('users')->group(function () {
+    Route::get('by-email/{email}', [UserController::class, 'getByEmail']);
+    Route::get('me', [UserController::class, 'me']);
 });
 
 // Tour routes

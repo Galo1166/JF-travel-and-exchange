@@ -18,6 +18,10 @@ class TourBooking extends Model
         'number_of_travelers',
         'total_price',
         'status',
+        'full_name',
+        'email',
+        'phone',
+        'payment_method',
     ];
 
     protected $casts = [

@@ -128,6 +128,10 @@ class BookingController extends Controller
                 'number_of_travelers' => 'required|integer|min:1',
                 'total_price' => 'required|numeric|min:0',
                 'status' => 'nullable|in:pending,confirmed,completed,cancelled',
+                'full_name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'required|string|max:20',
+                'payment_method' => 'required|string|in:paystack,paypal,bank',
             ]);
 
             // Set default status if not provided

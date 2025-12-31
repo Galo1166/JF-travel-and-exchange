@@ -9,6 +9,7 @@ import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
 import { getTourById } from '../utils/tourService';
 import { getTourImageUrl } from '../utils/imageHelper';
 import { createBooking } from '../utils/bookingService';
+import { getUserByEmail } from '../utils/userService';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import type { TourData } from '../utils/tourService';
@@ -157,7 +158,23 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
     try {
       setIsSubmitting(true);
 
+      // Get user_id from database using email
+      if (!user?.email) {
+        toast.error('User email not found');
+        return;
+      }
+
+      console.log('Processing booking: Getting user_id for', user.email);
+      const userResult = await getUserByEmail(user.email);
+
+      if (!userResult.success || !userResult.user) {
+        toast.error('Unable to process booking: User not found in database');
+        console.error('User lookup failed:', userResult.error);
+        return;
+      }
+
       const bookingData = {
+        user_id: userResult.user.id,
         tour_id: typeof tour.id === 'string' ? parseInt(tour.id, 10) : tour.id,
         travel_date: formData.date,
         number_of_travelers: formData.travelers,
