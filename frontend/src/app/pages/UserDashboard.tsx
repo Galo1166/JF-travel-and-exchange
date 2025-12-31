@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
+import { BookingDetailsModal } from '../components/BookingDetailsModal';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
 import { useAuth } from '../context/AuthContext';
 import { getUserBookings, updateUserProfile } from '../utils/userService';
@@ -29,6 +30,7 @@ export function UserDashboard({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [preferredCurrency, setPreferredCurrency] = useState(selectedCurrency);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
   // Fetch user's bookings
   useEffect(() => {
@@ -171,17 +173,14 @@ export function UserDashboard({
                         <p className="text-2xl font-bold text-blue-600">
                           {formatCurrency(convertCurrency(booking.total_price, 'USD', selectedCurrency), selectedCurrency)}
                         </p>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => onNavigate('tour-details', { tourId: booking.tour_id })}
-                            size="sm"
-                            variant="outline"
-                            className="gap-2"
-                          >
-                            <Eye className="w-4 h-4" />
-                            View
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={() => setSelectedBooking(booking)}
+                          size="sm"
+                          className="gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Details
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -383,6 +382,15 @@ export function UserDashboard({
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Booking Details Modal */}
+      {selectedBooking && (
+        <BookingDetailsModal
+          booking={selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+          selectedCurrency={selectedCurrency}
+        />
+      )}
     </div>
   );
 }
