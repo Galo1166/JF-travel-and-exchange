@@ -172,7 +172,14 @@ export function UserDashboard({
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <p className="text-2xl font-bold text-blue-600">
-                          {formatCurrency(convertCurrency(booking.total_price, 'USD', selectedCurrency), selectedCurrency)}
+                          {formatCurrency(
+                            convertCurrency(
+                              Number(String(booking.total_price).replace(/[^0-9.-]+/g, '')) || 0,
+                              'USD',
+                              selectedCurrency
+                            ),
+                            selectedCurrency
+                          )}
                         </p>
                         <Button
                           onClick={() => setSelectedBooking(booking)}
@@ -209,7 +216,11 @@ export function UserDashboard({
                       <p className="text-2xl font-bold text-blue-600">
                         {formatCurrency(
                           convertCurrency(
-                            bookings.reduce((sum, b) => sum + (b.total_price || 0), 0),
+                            bookings.reduce((sum, b) => {
+                              const raw = b?.total_price ?? 0;
+                              const num = Number(String(raw).replace(/[^0-9.-]+/g, ''));
+                              return sum + (Number.isFinite(num) ? num : 0);
+                            }, 0),
                             'USD',
                             selectedCurrency
                           ),
@@ -247,7 +258,14 @@ export function UserDashboard({
                           </div>
                           <div className="text-right">
                             <p className="font-semibold">
-                              {formatCurrency(convertCurrency(booking.total_price, 'USD', selectedCurrency), selectedCurrency)}
+                              {formatCurrency(
+                                convertCurrency(
+                                  Number(String(booking.total_price).replace(/[^0-9.-]+/g, '')) || 0,
+                                  'USD',
+                                  selectedCurrency
+                                ),
+                                selectedCurrency
+                              )}
                             </p>
                             <Badge
                               variant={
