@@ -254,8 +254,11 @@ export async function updateTour(id: number, tourData: Partial<TourData>): Promi
       });
     }
     
+    // Use POST with method override for file uploads because many PHP setups
+    // (including PHP-FPM/nginx) do not parse multipart bodies on PUT requests.
+    formData.append('_method', 'PUT');
     const response = await fetch(`${API_BASE_URL}/tours/${id}`, {
-      method: 'PUT',
+      method: 'POST',
       body: formData,
     });
 
