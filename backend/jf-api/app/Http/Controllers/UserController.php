@@ -55,7 +55,7 @@ class UserController extends Controller
     public function me(): JsonResponse
     {
         try {
-            $user = auth('sanctum')->user();
+            $user = auth()->user();
 
             if (!$user) {
                 return response()->json([
@@ -92,7 +92,7 @@ class UserController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         try {
-            $user = auth('sanctum')->user();
+            $user = auth()->user();
 
             if (!$user) {
                 return response()->json([
@@ -150,7 +150,7 @@ class UserController extends Controller
     public function getBookings(): JsonResponse
     {
         try {
-            $user = auth('sanctum')->user();
+            $user = auth()->user();
 
             if (!$user) {
                 return response()->json([

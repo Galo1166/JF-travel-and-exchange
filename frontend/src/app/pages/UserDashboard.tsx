@@ -7,7 +7,8 @@ import { Badge } from '../components/ui/badge';
 import { BookingDetailsModal } from '../components/BookingDetailsModal';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
 import { useAuth } from '../context/AuthContext';
-import { getUserBookings, updateUserProfile } from '../utils/userService';
+import { updateUserProfile } from '../utils/userService';
+import { getUserBookingsByEmail } from '../utils/userServicePublic';
 import { toast } from 'sonner';
 
 interface UserDashboardProps {
@@ -35,12 +36,12 @@ export function UserDashboard({
   // Fetch user's bookings
   useEffect(() => {
     const fetchBookings = async () => {
-      if (!user?.accessToken) return;
-      
+      if (!user?.email) return;
+
       try {
         setLoadingBookings(true);
-        const result = await getUserBookings(user.accessToken);
-        if (result.success && result.bookings) {
+        const result = await getUserBookingsByEmail(user.email);
+        if (result && result.success && result.bookings) {
           setBookings(result.bookings);
         }
       } catch (error) {
@@ -51,7 +52,7 @@ export function UserDashboard({
     };
 
     fetchBookings();
-  }, [user?.accessToken]);
+  }, [user?.email]);
 
   const handleSaveProfile = async () => {
     if (!user?.accessToken) {
