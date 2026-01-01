@@ -154,7 +154,8 @@ export default function App() {
           <ErrorBoundary>
             <BookingConfirmationPage 
               bookingData={pageData} 
-              onNavigate={handleNavigate} 
+              onNavigate={handleNavigate}
+              selectedCurrency={selectedCurrency}
             />
           </ErrorBoundary>
         );

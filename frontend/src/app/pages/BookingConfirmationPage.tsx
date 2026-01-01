@@ -1,7 +1,7 @@
 import { Check, Calendar, Users, MapPin, CreditCard, Mail, Phone } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { formatCurrency } from '../utils/currencyConverter';
+import { formatCurrency, convertCurrency } from '../utils/currencyConverter';
 import { getTourImageUrl } from '../utils/imageHelper';
 
 interface BookingConfirmationPageProps {
@@ -30,9 +30,10 @@ interface BookingConfirmationPageProps {
     };
   };
   onNavigate: (page: string, data?: any) => void;
+  selectedCurrency?: string;
 }
 
-export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConfirmationPageProps) {
+export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurrency = 'USD' }: BookingConfirmationPageProps) {
   // Defensive checks for missing data
   if (!bookingData) {
     return (
@@ -253,7 +254,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
               <div className="space-y-3 mb-4 pb-4 border-b">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Price per person</span>
-                  <span className="font-medium">${price.toFixed(2)}</span>
+                  <span className="font-medium">{formatCurrency(convertCurrency(price, 'USD', selectedCurrency), selectedCurrency)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Number of travelers</span>
@@ -264,9 +265,12 @@ export function BookingConfirmationPage({ bookingData, onNavigate }: BookingConf
               <div className="flex justify-between items-center mb-6">
                 <span className="font-bold">Total Amount</span>
                 <span className="text-2xl font-bold text-green-600">
-                  ${typeof totalPrice === 'string' 
-                    ? parseFloat(totalPrice).toFixed(2) 
-                    : totalPrice.toFixed(2)}
+                  {formatCurrency(
+                    typeof totalPrice === 'string' 
+                      ? parseFloat(totalPrice) 
+                      : totalPrice,
+                    selectedCurrency
+                  )}
                 </span>
               </div>
 
