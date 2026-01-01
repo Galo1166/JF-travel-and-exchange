@@ -117,9 +117,10 @@ export async function getBookingById(id: number): Promise<{
 /**
  * Create a new booking
  * @param bookingData - Booking information
+ * @param token - Firebase ID token for authentication
  * @returns Promise with created booking
  */
-export async function createBooking(bookingData: Partial<BookingData>): Promise<{
+export async function createBooking(bookingData: Partial<BookingData>, token?: string): Promise<{
   success: boolean;
   booking?: BookingData;
   error?: string;
@@ -136,11 +137,17 @@ export async function createBooking(bookingData: Partial<BookingData>): Promise<
       };
     }
 
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/bookings`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         ...bookingData,
         status: bookingData.status || 'pending',
@@ -238,11 +245,13 @@ export async function updateBookingStatus(
  * Update entire booking
  * @param id - Booking ID
  * @param bookingData - Updated booking data
+ * @param token - Firebase ID token for authentication
  * @returns Promise with updated booking
  */
 export async function updateBooking(
   id: number,
-  bookingData: Partial<BookingData>
+  bookingData: Partial<BookingData>,
+  token?: string
 ): Promise<{
   success: boolean;
   booking?: BookingData;
@@ -251,11 +260,17 @@ export async function updateBooking(
   try {
     console.log('updateBooking: Updating booking', { id, bookingData });
 
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(bookingData),
     });
 
@@ -289,20 +304,27 @@ export async function updateBooking(
 /**
  * Delete a booking
  * @param id - Booking ID
+ * @param token - Firebase ID token for authentication
  * @returns Promise with success status
  */
-export async function deleteBooking(id: number): Promise<{
+export async function deleteBooking(id: number, token?: string): Promise<{
   success: boolean;
   error?: string;
 }> {
   try {
     console.log('deleteBooking: Deleting booking', { id });
 
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/bookings/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     console.log('deleteBooking: Response status', response.status);

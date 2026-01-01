@@ -189,7 +189,9 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
 
       console.log('Processing booking:', bookingData);
 
-      const result = await createBooking(bookingData);
+      // Get Firebase token for authentication
+      const token = await user.getIdToken();
+      const result = await createBooking(bookingData, token);
 
       if (result.success) {
         toast.success('Booking confirmed successfully!');
