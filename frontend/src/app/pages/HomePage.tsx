@@ -3,6 +3,8 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { TourCard } from '../components/TourCard';
 import { tours, testimonials, currencyRates } from '../data/mockData';
+import { getAllTours, type TourData } from '../utils/tourService';
+import { useState, useEffect } from 'react';
 
 interface HomePageProps {
   onNavigate: (page: string, data?: any) => void;
@@ -10,7 +12,27 @@ interface HomePageProps {
 }
 
 export function HomePage({ onNavigate, selectedCurrency = 'USD' }: HomePageProps) {
-  const featuredTours = tours.slice(0, 3);
+  const [databaseTours, setDatabaseTours] = useState<TourData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTours = async () => {
+      try {
+        const result = await getAllTours();
+        if (result.success && result.tours) {
+          setDatabaseTours(result.tours);
+        }
+      } catch (error) {
+        console.error('Error loading tours:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTours();
+  }, []);
+
+  const featuredTours = databaseTours.length > 0 ? databaseTours.slice(0, 3) : tours.slice(0, 3);
   const usdToLocal = currencyRates.find(r => r.code === 'NGN');
 
   return (
