@@ -18,6 +18,7 @@ Route::prefix('users')->middleware(['firebase.auth'])->group(function () {
     Route::get('me', [UserController::class, 'me']);
     Route::post('profile', [UserController::class, 'updateProfile']);
     Route::get('bookings', [UserController::class, 'getBookings']);
+    Route::get('all', [UserController::class, 'getAllUsers']); // Admin endpoint
 });
 
 // User routes (public - no auth required)

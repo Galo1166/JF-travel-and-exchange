@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { getAllTours, createTour, updateTour, deleteTour, TourData } from '../utils/tourService';
 import { getAllBookings, updateBookingStatus, BookingData } from '../utils/bookingService';
 import { getAllExchangeRates, createExchangeRate, updateExchangeRate, deleteExchangeRate, ExchangeRateData } from '../utils/exchangeRateService';
+import { getAllUsers } from '../utils/userService';
 
 interface AdminDashboardProps {
   onNavigate: (page: string) => void;
@@ -130,16 +131,24 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
   const loadUsersAndTransactions = async () => {
     try {
-      // Simulate loading users from database
-      // In real scenario, create getAllUsers endpoint
-      const mockUsers = [
-        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user', wallet_balance: 5000, preferred_currency: 'USD', created_at: '2024-12-15' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user', wallet_balance: 3500, preferred_currency: 'USD', created_at: '2024-12-20' },
-        { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'admin', wallet_balance: 10000, preferred_currency: 'USD', created_at: '2024-12-01' },
-      ];
-      setAllUsers(mockUsers);
+      // Load users from backend
+      if (user) {
+        const token = await user.getIdToken();
+        const usersResult = await getAllUsers(token);
+        if (usersResult.success && usersResult.users) {
+          setAllUsers(usersResult.users);
+        } else {
+          // Fallback to mock data if API fails
+          const mockUsers = [
+            { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user', wallet_balance: 5000, preferred_currency: 'USD', created_at: '2024-12-15' },
+            { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user', wallet_balance: 3500, preferred_currency: 'USD', created_at: '2024-12-20' },
+            { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'admin', wallet_balance: 10000, preferred_currency: 'USD', created_at: '2024-12-01' },
+          ];
+          setAllUsers(mockUsers);
+        }
+      }
 
-      // Simulate transaction logs
+      // Simulate transaction logs (TODO: Create API endpoint)
       const mockTransactions = [
         { id: 1, type: 'booking', user_email: 'john@example.com', amount: 2598, currency: 'USD', status: 'success', description: 'Booking: Tropical Paradise', created_at: '2024-12-25' },
         { id: 2, type: 'deposit', user_email: 'jane@example.com', amount: 500, currency: 'USD', status: 'success', description: 'Wallet Deposit', created_at: '2024-12-24' },

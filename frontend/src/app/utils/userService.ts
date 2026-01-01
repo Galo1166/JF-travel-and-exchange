@@ -196,3 +196,50 @@ export async function getUserBookings(token: string): Promise<{
     };
   }
 }
+
+/**
+ * Get all users (admin endpoint)
+ */
+export async function getAllUsers(token?: string): Promise<{
+  success: boolean;
+  users?: any[];
+  error?: string;
+}> {
+  try {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/users/all`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('getAllUsers: Failed with status', response.status, errorText);
+      return {
+        success: false,
+        error: `Failed to fetch users: ${response.statusText}`,
+      };
+    }
+
+    const data = await response.json();
+    console.log('getAllUsers: Retrieved users', data);
+    return {
+      success: true,
+      users: data.users || [],
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('getAllUsers: Error', errorMsg);
+    return {
+      success: false,
+      error: errorMsg || 'Failed to fetch users',
+    };
+  }
+}

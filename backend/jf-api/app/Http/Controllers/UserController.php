@@ -217,4 +217,44 @@ class UserController extends Controller
             ], 500);
         }
     }
-}
+
+    /**
+     * Get all users (admin only)
+     */
+    public function getAllUsers(Request $request): JsonResponse
+    {
+        try {
+            Log::info('UserController@getAllUsers: Fetching all users');
+
+            $users = User::select('id', 'email', 'name', 'role', 'preferred_currency', 'created_at')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'email' => $user->email,
+                        'name' => $user->name,
+                        'role' => $user->role ?? 'user',
+                        'preferred_currency' => $user->preferred_currency ?? 'USD',
+                        'wallet_balance' => 0, // Add wallet data if wallet table exists
+                        'created_at' => $user->created_at,
+                    ];
+                });
+
+            Log::info('UserController@getAllUsers: Retrieved users', ['count' => count($users)]);
+
+            return response()->json([
+                'success' => true,
+                'users' => $users,
+                'total' => count($users),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('UserController@getAllUsers: Error', [
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }}
