@@ -1,4 +1,4 @@
-import { DollarSign, ChevronLeft, Users, Plane, TrendingUp, Edit, Trash2, Plus, X } from 'lucide-react';
+import { DollarSign, ChevronLeft, Users, Plane, TrendingUp, Edit, Trash2, Plus, X, FileText, TrendingDown, Download, Filter } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -23,9 +23,14 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
   const [databaseTours, setDatabaseTours] = useState<TourData[]>([]);
   const [databaseBookings, setDatabaseBookings] = useState<BookingData[]>([]);
   const [databaseRates, setDatabaseRates] = useState<ExchangeRateData[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [allTransactions, setAllTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showRateModal, setShowRateModal] = useState(false);
+  const [bookingFilter, setBookingFilter] = useState<string>('all');
+  const [transactionFilter, setTransactionFilter] = useState<string>('all');
+  const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(null);
   const [editingTour, setEditingTour] = useState<TourData | null>(null);
   const [editingRate, setEditingRate] = useState<ExchangeRateData | null>(null);
   const [formData, setFormData] = useState<Partial<TourData>>({
@@ -56,6 +61,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
     loadTours();
     loadBookings();
     loadExchangeRates();
+    loadUsersAndTransactions();
   }, []);
 
   const loadTours = async () => {
@@ -111,6 +117,30 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
       }
     } catch (error) {
       console.error('Error loading exchange rates:', error);
+    }
+  };
+
+  const loadUsersAndTransactions = async () => {
+    try {
+      // Simulate loading users from database
+      // In real scenario, create getAllUsers endpoint
+      const mockUsers = [
+        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user', wallet_balance: 5000, preferred_currency: 'USD', created_at: '2024-12-15' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'user', wallet_balance: 3500, preferred_currency: 'USD', created_at: '2024-12-20' },
+        { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'admin', wallet_balance: 10000, preferred_currency: 'USD', created_at: '2024-12-01' },
+      ];
+      setAllUsers(mockUsers);
+
+      // Simulate transaction logs
+      const mockTransactions = [
+        { id: 1, type: 'booking', user_email: 'john@example.com', amount: 2598, currency: 'USD', status: 'success', description: 'Booking: Tropical Paradise', created_at: '2024-12-25' },
+        { id: 2, type: 'deposit', user_email: 'jane@example.com', amount: 500, currency: 'USD', status: 'success', description: 'Wallet Deposit', created_at: '2024-12-24' },
+        { id: 3, type: 'exchange', user_email: 'john@example.com', amount: 1000, currency: 'NGN', status: 'success', description: 'Currency Exchange: USD to NGN', created_at: '2024-12-23' },
+        { id: 4, type: 'booking', user_email: 'jane@example.com', amount: 8598, currency: 'USD', status: 'success', description: 'Booking: Maldives Luxury', created_at: '2024-12-22' },
+      ];
+      setAllTransactions(mockTransactions);
+    } catch (error) {
+      console.error('Error loading users and transactions:', error);
     }
   };
 
@@ -364,10 +394,12 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
         {/* Tabs */}
         <Tabs defaultValue="tours" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-5">
             <TabsTrigger value="tours">Manage Tours</TabsTrigger>
-            <TabsTrigger value="bookings">View Bookings</TabsTrigger>
-            <TabsTrigger value="rates">Exchange Rates</TabsTrigger>
+            <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="rates">Rates</TabsTrigger>
           </TabsList>
 
           {/* Tours Tab */}
@@ -446,10 +478,24 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
           </TabsContent>
 
           {/* Bookings Tab */}
+          {/* Bookings Tab */}
           <TabsContent value="bookings" className="mt-6">
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Tour Bookings ({databaseBookings.length})</h2>
+                <div className="flex gap-2">
+                  <select
+                    value={bookingFilter}
+                    onChange={(e) => setBookingFilter(e.target.value)}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer gap-2"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
               </div>
 
               {databaseBookings.length === 0 ? (
@@ -472,7 +518,9 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {databaseBookings.map((booking) => (
+                      {databaseBookings
+                        .filter(b => bookingFilter === 'all' || b.status === bookingFilter)
+                        .map((booking) => (
                         <TableRow key={booking.id}>
                           <TableCell className="font-medium">#{booking.id}</TableCell>
                           <TableCell>
@@ -487,31 +535,232 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                           <TableCell className="font-semibold">${typeof booking.total_price === 'string' ? parseFloat(booking.total_price).toFixed(2) : booking.total_price?.toFixed(2)}</TableCell>
                           <TableCell>
                             <Badge
-                              variant={
+                              className={`text-white font-medium ${
                                 booking.status === 'completed'
-                                  ? 'default'
+                                  ? 'bg-blue-500 hover:bg-blue-600'
                                   : booking.status === 'confirmed'
-                                  ? 'secondary'
+                                  ? 'bg-green-500 hover:bg-green-600'
                                   : booking.status === 'pending'
-                                  ? 'outline'
-                                  : 'destructive'
-                              }
+                                  ? 'bg-orange-500 hover:bg-orange-600'
+                                  : booking.status === 'cancelled'
+                                  ? 'bg-red-500 hover:bg-red-600'
+                                  : 'bg-gray-500 hover:bg-gray-600'
+                              }`}
                             >
                               {booking.status}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <select
-                              value={booking.status}
-                              onChange={(e) => handleUpdateBookingStatus(booking.id!, e.target.value as any)}
-                              className="px-3 py-1 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
-                            >
-                              <option value="pending">Pending</option>
-                              <option value="confirmed">Confirmed</option>
-                              <option value="completed">Completed</option>
-                              <option value="cancelled">Cancelled</option>
-                            </select>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setSelectedBooking(booking)}
+                              >
+                                <FileText className="w-3 h-3" />
+                              </Button>
+                              <select
+                                value={booking.status}
+                                onChange={(e) => handleUpdateBookingStatus(booking.id!, e.target.value as any)}
+                                className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                              </select>
+                            </div>
                           </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </Card>
+
+            {/* Booking Detail Modal */}
+            {selectedBooking && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <Card className="w-full max-w-2xl">
+                  <div className="p-6 flex justify-between items-center border-b">
+                    <h2 className="text-2xl font-bold">Booking Details</h2>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setSelectedBooking(null)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Booking ID</p>
+                        <p className="font-bold">#{selectedBooking.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Status</p>
+                        <Badge className={`text-white font-medium ${
+                          selectedBooking.status === 'completed' ? 'bg-blue-500' :
+                          selectedBooking.status === 'confirmed' ? 'bg-green-500' :
+                          selectedBooking.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
+                        }`}>
+                          {selectedBooking.status}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Customer Name</p>
+                        <p className="font-medium">{selectedBooking.user_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Customer Email</p>
+                        <p className="text-sm">{selectedBooking.user_email}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Tour</p>
+                        <p className="font-medium">{selectedBooking.tour_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Travel Date</p>
+                        <p className="font-medium">{new Date(selectedBooking.travel_date).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Travelers</p>
+                        <p className="font-medium">{selectedBooking.number_of_travelers}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Total Amount</p>
+                        <p className="text-lg font-bold text-blue-600">${typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price).toFixed(2) : selectedBooking.total_price?.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Payment Method</p>
+                        <p className="font-medium capitalize">{selectedBooking.payment_method}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Booking Date</p>
+                        <p className="text-sm">{new Date(selectedBooking.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Users Tab */}
+          <TabsContent value="users" className="mt-6">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">User Management ({allUsers.length})</h2>
+              </div>
+
+              {allUsers.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No users found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Wallet Balance</TableHead>
+                        <TableHead>Currency</TableHead>
+                        <TableHead>Member Since</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {allUsers.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell className="font-medium">{user.name}</TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>
+                            <Badge className={user.role === 'admin' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}>
+                              {user.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-semibold">${user.wallet_balance.toFixed(2)}</TableCell>
+                          <TableCell>{user.preferred_currency}</TableCell>
+                          <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Transactions Tab */}
+          <TabsContent value="transactions" className="mt-6">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Transaction Logs ({allTransactions.length})</h2>
+                <div className="flex gap-2">
+                  <select
+                    value={transactionFilter}
+                    onChange={(e) => setTransactionFilter(e.target.value)}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="booking">Bookings</option>
+                    <option value="deposit">Deposits</option>
+                    <option value="exchange">Exchanges</option>
+                  </select>
+                  <Button className="gap-2 bg-green-600 hover:bg-green-700">
+                    <Download className="w-4 h-4" />
+                    Export
+                  </Button>
+                </div>
+              </div>
+
+              {allTransactions.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No transactions found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>User Email</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Currency</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {allTransactions
+                        .filter(t => transactionFilter === 'all' || t.type === transactionFilter)
+                        .map((transaction) => (
+                        <TableRow key={transaction.id}>
+                          <TableCell className="font-medium">#{transaction.id}</TableCell>
+                          <TableCell>
+                            <Badge className={
+                              transaction.type === 'booking' ? 'bg-blue-500' :
+                              transaction.type === 'deposit' ? 'bg-green-500' :
+                              'bg-purple-500'
+                            }>
+                              {transaction.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{transaction.user_email}</TableCell>
+                          <TableCell className="font-semibold">${typeof transaction.amount === 'string' ? parseFloat(transaction.amount).toFixed(2) : transaction.amount?.toFixed(2)}</TableCell>
+                          <TableCell>{transaction.currency}</TableCell>
+                          <TableCell>{transaction.description}</TableCell>
+                          <TableCell>
+                            <Badge className={transaction.status === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}>
+                              {transaction.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{new Date(transaction.created_at).toLocaleDateString()}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
