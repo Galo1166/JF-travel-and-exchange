@@ -95,7 +95,8 @@ export default function App() {
         
         // Check if user is admin
         try {
-          const response = await fetch('http://localhost:8000/api/auth/check-admin', {
+          const apiBaseUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000/api';
+          const response = await fetch(`${apiBaseUrl}/auth/check-admin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: user.email }),
