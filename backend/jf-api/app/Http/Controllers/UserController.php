@@ -52,17 +52,21 @@ class UserController extends Controller
     /**
      * Get current authenticated user
      */
-    public function me(): JsonResponse
+    public function me(Request $request): JsonResponse
     {
         try {
-            $user = auth()->user();
+            // Get user from request (set by FirebaseAuth middleware)
+            $user = $request->user() ?? auth()->user() ?? $request->get('user');
 
             if (!$user) {
+                Log::warning('UserController@me: User not authenticated');
                 return response()->json([
                     'success' => false,
                     'error' => 'Not authenticated',
                 ], 401);
             }
+
+            Log::info('UserController@me: Retrieved current user', ['user_id' => $user->id]);
 
             return response()->json([
                 'success' => true,
@@ -92,9 +96,11 @@ class UserController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         try {
-            $user = auth()->user();
+            // Get user from request (set by FirebaseAuth middleware)
+            $user = $request->user() ?? auth()->user() ?? $request->get('user');
 
             if (!$user) {
+                Log::warning('UserController@updateProfile: User not authenticated');
                 return response()->json([
                     'success' => false,
                     'error' => 'Not authenticated',
@@ -147,12 +153,14 @@ class UserController extends Controller
     /**
      * Get user's bookings
      */
-    public function getBookings(): JsonResponse
+    public function getBookings(Request $request): JsonResponse
     {
         try {
-            $user = auth()->user();
+            // Get user from request (set by FirebaseAuth middleware)
+            $user = $request->user() ?? auth()->user() ?? $request->get('user');
 
             if (!$user) {
+                Log::warning('UserController@getBookings: User not authenticated');
                 return response()->json([
                     'success' => false,
                     'error' => 'Not authenticated',

@@ -55,14 +55,18 @@ export function UserDashboard({
   }, [user?.email]);
 
   const handleSaveProfile = async () => {
-    if (!user?.accessToken) {
+    if (!user) {
       toast.error('Not authenticated');
       return;
     }
 
     try {
       setSavingProfile(true);
-      const result = await updateUserProfile(user.accessToken, {
+      
+      // Get Firebase ID token
+      const token = await user.getIdToken();
+      
+      const result = await updateUserProfile(token, {
         phone_number: phoneNumber || undefined,
         preferred_currency: preferredCurrency || undefined,
       });
@@ -152,13 +156,17 @@ export function UserDashboard({
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="font-semibold">{booking.tour_name}</h3>
                           <Badge
-                            variant={
+                            className={`text-white font-medium ${
                               booking.status === 'confirmed'
-                                ? 'default'
+                                ? 'bg-green-500 hover:bg-green-600'
                                 : booking.status === 'pending'
-                                ? 'secondary'
-                                : 'destructive'
-                            }
+                                ? 'bg-orange-500 hover:bg-orange-600'
+                                : booking.status === 'complete'
+                                ? 'bg-blue-500 hover:bg-blue-600'
+                                : booking.status === 'cancelled'
+                                ? 'bg-red-500 hover:bg-red-600'
+                                : 'bg-gray-500 hover:bg-gray-600'
+                            }`}
                           >
                             {booking.status}
                           </Badge>
@@ -268,14 +276,17 @@ export function UserDashboard({
                               )}
                             </p>
                             <Badge
-                              variant={
+                              className={`text-white font-medium text-xs ${
                                 booking.status === 'confirmed'
-                                  ? 'default'
+                                  ? 'bg-green-500 hover:bg-green-600'
                                   : booking.status === 'pending'
-                                  ? 'secondary'
-                                  : 'destructive'
-                              }
-                              className="text-xs"
+                                  ? 'bg-orange-500 hover:bg-orange-600'
+                                  : booking.status === 'complete'
+                                  ? 'bg-blue-500 hover:bg-blue-600'
+                                  : booking.status === 'cancelled'
+                                  ? 'bg-red-500 hover:bg-red-600'
+                                  : 'bg-gray-500 hover:bg-gray-600'
+                              }`}
                             >
                               {booking.status}
                             </Badge>

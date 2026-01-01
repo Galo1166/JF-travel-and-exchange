@@ -13,38 +13,57 @@ Route::prefix('auth')->group(function () {
     Route::post('firebase-signup', [AuthController::class, 'firebaseSignup']);
 });
 
-// User routes
-Route::prefix('users')->group(function () {
-    Route::get('by-email/{email}', [UserController::class, 'getByEmail']);
+// User routes (protected with Firebase auth)
+Route::prefix('users')->middleware(['firebase.auth'])->group(function () {
     Route::get('me', [UserController::class, 'me']);
     Route::post('profile', [UserController::class, 'updateProfile']);
     Route::get('bookings', [UserController::class, 'getBookings']);
 });
 
+// User routes (public - no auth required)
+Route::prefix('users')->group(function () {
+    Route::get('by-email/{email}', [UserController::class, 'getByEmail']);
+});
+
 // Tour routes
 Route::prefix('tours')->group(function () {
+    // Public routes
     Route::get('/', [TourController::class, 'index']);
     Route::get('{id}', [TourController::class, 'show']);
-    Route::post('/', [TourController::class, 'store']);
-    Route::put('{id}', [TourController::class, 'update']);
-    Route::delete('{id}', [TourController::class, 'destroy']);
+    
+    // Protected routes (require authentication - admin only in future)
+    Route::middleware(['firebase.auth'])->group(function () {
+        Route::post('/', [TourController::class, 'store']);
+        Route::put('{id}', [TourController::class, 'update']);
+        Route::delete('{id}', [TourController::class, 'destroy']);
+    });
 });
 
 // Booking routes
 Route::prefix('bookings')->group(function () {
+    // Public routes
     Route::get('/', [BookingController::class, 'index']);
     Route::get('{id}', [BookingController::class, 'show']);
-    Route::post('/', [BookingController::class, 'store']);
-    Route::put('{id}', [BookingController::class, 'update']);
-    Route::put('{id}/status', [BookingController::class, 'updateStatus']);
-    Route::delete('{id}', [BookingController::class, 'destroy']);
+    
+    // Protected routes (require authentication)
+    Route::middleware(['firebase.auth'])->group(function () {
+        Route::post('/', [BookingController::class, 'store']);
+        Route::put('{id}', [BookingController::class, 'update']);
+        Route::put('{id}/status', [BookingController::class, 'updateStatus']);
+        Route::delete('{id}', [BookingController::class, 'destroy']);
+    });
 });
 
-// Exchange Rate routes
+// Exchange Rate routes (admin only in future)
 Route::prefix('exchange-rates')->group(function () {
+    // Public routes
     Route::get('/', [ExchangeRateController::class, 'index']);
     Route::get('{id}', [ExchangeRateController::class, 'show']);
-    Route::post('/', [ExchangeRateController::class, 'store']);
-    Route::put('{id}', [ExchangeRateController::class, 'update']);
-    Route::delete('{id}', [ExchangeRateController::class, 'destroy']);
+    
+    // Protected routes (require authentication)
+    Route::middleware(['firebase.auth'])->group(function () {
+        Route::post('/', [ExchangeRateController::class, 'store']);
+        Route::put('{id}', [ExchangeRateController::class, 'update']);
+        Route::delete('{id}', [ExchangeRateController::class, 'destroy']);
+    });
 });
