@@ -118,7 +118,6 @@ export function Footer({ onNavigate }: FooterProps) {
               className="hover:text-blue-400 transition-colors text-gray-700"
               title="Admin Access"
             >
-              •
             </button>
           </div>
         </div>
