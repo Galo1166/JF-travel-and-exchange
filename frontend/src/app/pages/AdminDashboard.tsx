@@ -10,6 +10,7 @@ import { tours, mockBookings, currencyRates } from '../data/mockData';
 import { convertCurrency, formatCurrency } from '../utils/currencyConverter';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '../context/AuthContext';
 import { getAllTours, createTour, updateTour, deleteTour, TourData } from '../utils/tourService';
 import { getAllBookings, updateBookingStatus, BookingData } from '../utils/bookingService';
 import { getAllExchangeRates, createExchangeRate, updateExchangeRate, deleteExchangeRate, ExchangeRateData } from '../utils/exchangeRateService';
@@ -20,6 +21,7 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardProps) {
+  const { user } = useAuth();
   const [databaseTours, setDatabaseTours] = useState<TourData[]>([]);
   const [databaseBookings, setDatabaseBookings] = useState<BookingData[]>([]);
   const [databaseRates, setDatabaseRates] = useState<ExchangeRateData[]>([]);
@@ -91,7 +93,13 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
   const handleUpdateBookingStatus = async (id: number, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled') => {
     try {
-      const result = await updateBookingStatus(id, newStatus);
+      if (!user) {
+        toast.error('Not authenticated. Please log in.');
+        return;
+      }
+
+      const token = await user.getIdToken();
+      const result = await updateBookingStatus(id, newStatus, token);
       if (result.success) {
         toast.success(`Booking status updated to ${newStatus}`);
         loadBookings();
@@ -355,7 +363,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <arSign className="w-6 h-6 text-blue-600" />
+                <DollarSign className="w-6 h-6 text-blue-600" />
               </div>
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>

@@ -178,11 +178,13 @@ export async function createBooking(bookingData: Partial<BookingData>): Promise<
  * Update booking status (pending → completed, etc)
  * @param id - Booking ID
  * @param status - New status
+ * @param token - Firebase ID token for authentication
  * @returns Promise with updated booking
  */
 export async function updateBookingStatus(
   id: number,
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled',
+  token?: string
 ): Promise<{
   success: boolean;
   booking?: BookingData;
@@ -191,11 +193,17 @@ export async function updateBookingStatus(
   try {
     console.log('updateBookingStatus: Updating booking status', { id, status });
 
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/bookings/${id}/status`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ status }),
     });
 
