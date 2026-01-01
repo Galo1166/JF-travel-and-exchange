@@ -84,8 +84,17 @@ class FirebaseAuth
                 'firebase_email' => $userEmail,
             ]);
 
-            // Also set auth user for auth() helper
-            auth('api')->setUser($user);
+            // Set the user on the request so auth() helper can access it
+            $request->setUserResolver(function () use ($user) {
+                return $user;
+            });
+
+            // Also set for api guard if available
+            try {
+                auth('api')->setUser($user);
+            } catch (\Exception $e) {
+                Log::debug('FirebaseAuth: Could not set api guard user', ['error' => $e->getMessage()]);
+            }
 
             Log::info('FirebaseAuth: User authenticated', [
                 'user_id' => $user->id,

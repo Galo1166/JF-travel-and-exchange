@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('travel_date');
             $table->integer('number_of_travelers');
             $table->decimal('total_price', 10, 2);
-            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
             $table->timestamps();
             
             // Indexes for common queries
