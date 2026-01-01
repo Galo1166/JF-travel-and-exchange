@@ -52,15 +52,20 @@ class FirebaseAuth
             // In a production setup, you would validate the token signature using Firebase Admin SDK
             // For now, we'll validate by extracting claims and finding the user
             
+            Log::info('FirebaseAuth: Extracting email from token');
             $userEmail = $this->extractEmailFromToken($token);
 
             if (!$userEmail) {
-                Log::warning('FirebaseAuth: Could not extract email from token');
+                Log::warning('FirebaseAuth: Could not extract email from token', [
+                    'token_preview' => substr($token, 0, 50) . '...',
+                ]);
                 return response()->json([
                     'success' => false,
-                    'error' => 'Invalid token format',
+                    'error' => 'Invalid token format - could not extract email',
                 ], 401);
             }
+
+            Log::info('FirebaseAuth: Email extracted from token', ['email' => $userEmail]);
 
             // Find or create user in database
             $user = User::firstOrCreate(
@@ -92,10 +97,11 @@ class FirebaseAuth
         } catch (\Exception $e) {
             Log::error('FirebaseAuth: Error validating token', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return response()->json([
                 'success' => false,
-                'error' => 'Token validation failed',
+                'error' => 'Token validation failed: ' . $e->getMessage(),
             ], 401);
         }
     }
@@ -112,30 +118,59 @@ class FirebaseAuth
     private function extractEmailFromToken(string $token): ?string
     {
         try {
+            Log::info('FirebaseAuth: Starting token extraction');
+            
             // JWT tokens have 3 parts separated by dots: header.payload.signature
             $parts = explode('.', $token);
             
+            Log::info('FirebaseAuth: Token parts count', ['count' => count($parts)]);
+            
             if (count($parts) !== 3) {
+                Log::warning('FirebaseAuth: Invalid token format - expected 3 parts', ['got' => count($parts)]);
                 return null;
             }
 
             // Decode the payload (middle part)
             // Note: JWT payload is base64url encoded
-            $payload = json_decode(
-                base64_decode(strtr($parts[1], '-_', '+/')),
-                true
-            );
+            $decoded = base64_decode(strtr($parts[1], '-_', '+/'), true);
+            
+            Log::info('FirebaseAuth: Base64 decode result', [
+                'decoded' => $decoded ? 'success' : 'failed',
+                'decoded_length' => strlen($decoded ?? ''),
+            ]);
+            
+            if (!$decoded) {
+                Log::warning('FirebaseAuth: Failed to base64 decode payload');
+                return null;
+            }
+            
+            $payload = json_decode($decoded, true);
+
+            Log::info('FirebaseAuth: Decoded payload', [
+                'keys' => is_array($payload) ? array_keys($payload) : 'not_array',
+                'payload' => is_array($payload) ? $payload : 'invalid',
+            ]);
 
             if (!is_array($payload)) {
+                Log::warning('FirebaseAuth: Payload is not an array');
                 return null;
             }
 
             // Try to get email from common JWT claims
-            return $payload['email'] ?? $payload['preferred_username'] ?? null;
+            $email = $payload['email'] ?? $payload['preferred_username'] ?? $payload['sub'] ?? null;
+            
+            Log::info('FirebaseAuth: Extracted email from token', [
+                'email' => $email,
+                'available_claims' => array_keys($payload),
+            ]);
+            
+            return $email;
 
         } catch (\Exception $e) {
             Log::error('FirebaseAuth: Error extracting email from token', [
                 'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return null;
         }
