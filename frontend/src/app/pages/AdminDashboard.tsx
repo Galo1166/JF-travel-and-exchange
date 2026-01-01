@@ -402,181 +402,89 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
         {/* Tabs */}
         <Tabs defaultValue="tours" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-5">
-            <TabsTrigger value="tours">Manage Tours</TabsTrigger>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="rates">Rates</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-1 md:gap-0">
+            <TabsTrigger value="tours" className="text-xs md:text-sm">Manage Tours</TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs md:text-sm">Bookings</TabsTrigger>
+            <TabsTrigger value="users" className="text-xs md:text-sm">Users</TabsTrigger>
+            <TabsTrigger value="transactions" className="text-xs md:text-sm">Transactions</TabsTrigger>
+            <TabsTrigger value="rates" className="text-xs md:text-sm">Rates</TabsTrigger>
           </TabsList>
 
           {/* Tours Tab */}
           <TabsContent value="tours" className="mt-6">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Tour Management</h2>
+            <Card className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 mb-6">
+                <h2 className="text-lg md:text-xl font-bold">Tour Management</h2>
                 <Button 
                   onClick={() => handleOpenModal()} 
-                  className="gap-2 bg-blue-600 hover:bg-blue-700"
+                  className="gap-2 bg-blue-600 hover:bg-blue-700 w-full md:w-auto"
                   disabled={isLoading}
                 >
                   <Plus className="w-4 h-4" />
-                  Add New Tour
+                  <span className="hidden sm:inline">Add New Tour</span>
+                  <span className="sm:hidden">Add Tour</span>
                 </Button>
               </div>
 
               {isLoading && <p className="text-gray-600 mb-4">Loading tours...</p>}
 
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tour Name</TableHead>
-                      <TableHead>Destination</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Rating</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {displayTours.map((tour) => (
-                      <TableRow key={tour.id}>
-                        <TableCell className="font-medium">{tour.name}</TableCell>
-                        <TableCell>{tour.destination}, {tour.country}</TableCell>
-                        <TableCell>${typeof tour.price === 'string' ? parseFloat(tour.price).toFixed(2) : tour.price?.toFixed(2)}</TableCell>
-                        <TableCell>{tour.duration}</TableCell>
-                        <TableCell>{tour.rating || 0} ⭐</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            {tour.category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="gap-1"
-                              onClick={() => handleOpenModal(tour)}
-                              disabled={isLoading}
-                            >
-                              <Edit className="w-3 h-3" />
-                              Edit
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="gap-1 text-red-600 hover:text-red-700"
-                              onClick={() => tour.id && handleDeleteTour(tour.id)}
-                              disabled={isLoading}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                              Delete
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </Card>
-          </TabsContent>
-
-          {/* Bookings Tab */}
-          {/* Bookings Tab */}
-          <TabsContent value="bookings" className="mt-6">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Tour Bookings ({databaseBookings.length})</h2>
-                <div className="flex gap-2">
-                  <select
-                    value={bookingFilter}
-                    onChange={(e) => setBookingFilter(e.target.value)}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer gap-2"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-
-              {databaseBookings.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No bookings found</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full px-4 md:px-0">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Booking ID</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Tour</TableHead>
-                        <TableHead>Travel Date</TableHead>
-                        <TableHead>Travelers</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead className="text-xs md:text-sm">Tour Name</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden sm:table-cell">Destination</TableHead>
+                        <TableHead className="text-xs md:text-sm">Price</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden md:table-cell">Duration</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden lg:table-cell">Rating</TableHead>
+                        <TableHead className="text-xs md:text-sm hidden md:table-cell">Category</TableHead>
+                        <TableHead className="text-xs md:text-sm">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {databaseBookings
-                        .filter(b => bookingFilter === 'all' || b.status === bookingFilter)
-                        .map((booking) => (
-                        <TableRow key={booking.id}>
-                          <TableCell className="font-medium">#{booking.id}</TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{booking.user_name}</p>
-                              <p className="text-sm text-gray-500">{booking.user_email}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell>{booking.tour_name}</TableCell>
-                          <TableCell>{new Date(booking.travel_date).toLocaleDateString()}</TableCell>
-                          <TableCell>{booking.number_of_travelers}</TableCell>
-                          <TableCell className="font-semibold">${typeof booking.total_price === 'string' ? parseFloat(booking.total_price).toFixed(2) : booking.total_price?.toFixed(2)}</TableCell>
-                          <TableCell>
-                            <Badge
-                              className={`text-white font-medium ${
-                                booking.status === 'completed'
-                                  ? 'bg-blue-500 hover:bg-blue-600'
-                                  : booking.status === 'confirmed'
-                                  ? 'bg-green-500 hover:bg-green-600'
-                                  : booking.status === 'pending'
-                                  ? 'bg-orange-500 hover:bg-orange-600'
-                                  : booking.status === 'cancelled'
-                                  ? 'bg-red-500 hover:bg-red-600'
-                                  : 'bg-gray-500 hover:bg-gray-600'
-                              }`}
-                            >
-                              {booking.status}
+                      {displayTours.map((tour) => (
+                        <TableRow key={tour.id}>
+                          <TableCell className="font-medium text-xs md:text-sm">{tour.name?.substring(0, 12)}</TableCell>
+                          <TableCell className="hidden sm:table-cell text-xs md:text-sm">{tour.destination?.substring(0, 12)}</TableCell>
+                          <TableCell className="font-semibold text-xs md:text-sm">${typeof tour.price === 'string' ? parseFloat(tour.price).toFixed(0) : tour.price?.toFixed(0)}</TableCell>
+                          <TableCell className="hidden md:table-cell text-xs md:text-sm">{tour.duration}</TableCell>
+                          <TableCell className="hidden lg:table-cell text-xs md:text-sm">{tour.rating || 0}⭐</TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge variant="outline" className="capitalize text-xs">
+                              {tour.category?.substring(0, 6)}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1">
                               <Button 
                                 size="sm" 
-                                variant="outline"
-                                onClick={() => setSelectedBooking(booking)}
+                                variant="outline" 
+                                className="gap-1 hidden sm:flex text-xs px-2"
+                                onClick={() => handleOpenModal(tour)}
+                                disabled={isLoading}
                               >
-                                <FileText className="w-3 h-3" />
+                                <Edit className="w-3 h-3" />
+                                Edit
                               </Button>
-                              <select
-                                value={booking.status}
-                                onChange={(e) => handleUpdateBookingStatus(booking.id!, e.target.value as any)}
-                                className="px-2 py-1 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="gap-1 sm:hidden text-xs px-2"
+                                onClick={() => handleOpenModal(tour)}
+                                disabled={isLoading}
                               >
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="gap-1 text-red-600 hover:text-red-700 text-xs px-2"
+                                onClick={() => tour.id && handleDeleteTour(tour.id)}
+                                disabled={isLoading}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -584,15 +492,117 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                     </TableBody>
                   </Table>
                 </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Bookings Tab */}
+          {/* Bookings Tab */}
+          <TabsContent value="bookings" className="mt-6">
+            <Card className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 mb-6">
+                <h2 className="text-lg md:text-xl font-bold">Tour Bookings ({databaseBookings.length})</h2>
+                <select
+                  value={bookingFilter}
+                  onChange={(e) => setBookingFilter(e.target.value)}
+                  className="w-full md:w-auto px-3 py-2 text-sm border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              {databaseBookings.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No bookings found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                  <div className="inline-block min-w-full px-4 md:px-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs md:text-sm">ID</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden sm:table-cell">Customer</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden md:table-cell">Tour</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden lg:table-cell">Date</TableHead>
+                          <TableHead className="text-xs md:text-sm">Amount</TableHead>
+                          <TableHead className="text-xs md:text-sm">Status</TableHead>
+                          <TableHead className="text-xs md:text-sm">Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {databaseBookings
+                          .filter(b => bookingFilter === 'all' || b.status === bookingFilter)
+                          .map((booking) => (
+                          <TableRow key={booking.id}>
+                            <TableCell className="font-medium text-xs md:text-sm">#{booking.id}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-xs md:text-sm">
+                              <div>
+                                <p className="font-medium text-xs">{booking.user_name?.substring(0, 15)}</p>
+                                <p className="text-xs text-gray-500 hidden md:block">{booking.user_email?.substring(0, 20)}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell text-xs md:text-sm">{booking.tour_name?.substring(0, 15)}</TableCell>
+                            <TableCell className="hidden lg:table-cell text-xs md:text-sm">{new Date(booking.travel_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</TableCell>
+                            <TableCell className="font-semibold text-xs md:text-sm">${typeof booking.total_price === 'string' ? parseFloat(booking.total_price).toFixed(0) : booking.total_price?.toFixed(0)}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={`text-white font-medium text-xs ${
+                                  booking.status === 'completed'
+                                    ? 'bg-blue-500 hover:bg-blue-600'
+                                    : booking.status === 'confirmed'
+                                    ? 'bg-green-500 hover:bg-green-600'
+                                    : booking.status === 'pending'
+                                    ? 'bg-orange-500 hover:bg-orange-600'
+                                    : booking.status === 'cancelled'
+                                    ? 'bg-red-500 hover:bg-red-600'
+                                    : 'bg-gray-500 hover:bg-gray-600'
+                                }`}
+                              >
+                                {booking.status?.substring(0, 3)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="text-xs px-2"
+                                  onClick={() => setSelectedBooking(booking)}
+                                >
+                                  <FileText className="w-3 h-3" />
+                                </Button>
+                                <select
+                                  value={booking.status}
+                                  onChange={(e) => handleUpdateBookingStatus(booking.id!, e.target.value as any)}
+                                  className="px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="confirmed">Confirmed</option>
+                                  <option value="completed">Completed</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               )}
             </Card>
 
             {/* Booking Detail Modal */}
             {selectedBooking && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <Card className="w-full max-w-2xl">
-                  <div className="p-6 flex justify-between items-center border-b">
-                    <h2 className="text-2xl font-bold">Booking Details</h2>
+                <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="p-4 md:p-6 flex justify-between items-center border-b sticky top-0 bg-white">
+                    <h2 className="text-lg md:text-2xl font-bold">Booking Details</h2>
                     <Button 
                       size="sm" 
                       variant="ghost"
@@ -601,15 +611,15 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="p-6 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 md:p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Booking ID</p>
-                        <p className="font-bold">#{selectedBooking.id}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Booking ID</p>
+                        <p className="font-bold text-sm md:text-base">#{selectedBooking.id}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Status</p>
-                        <Badge className={`text-white font-medium ${
+                        <p className="text-xs md:text-sm text-gray-600">Status</p>
+                        <Badge className={`text-white font-medium text-xs ${
                           selectedBooking.status === 'completed' ? 'bg-blue-500' :
                           selectedBooking.status === 'confirmed' ? 'bg-green-500' :
                           selectedBooking.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
@@ -618,36 +628,36 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                         </Badge>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Customer Name</p>
-                        <p className="font-medium">{selectedBooking.user_name}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Customer Name</p>
+                        <p className="font-medium text-sm">{selectedBooking.user_name}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Customer Email</p>
-                        <p className="text-sm">{selectedBooking.user_email}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Customer Email</p>
+                        <p className="text-xs md:text-sm break-all">{selectedBooking.user_email}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Tour</p>
-                        <p className="font-medium">{selectedBooking.tour_name}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Tour</p>
+                        <p className="font-medium text-sm">{selectedBooking.tour_name}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Travel Date</p>
-                        <p className="font-medium">{new Date(selectedBooking.travel_date).toLocaleDateString()}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Travel Date</p>
+                        <p className="font-medium text-sm">{new Date(selectedBooking.travel_date).toLocaleDateString()}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Travelers</p>
-                        <p className="font-medium">{selectedBooking.number_of_travelers}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Travelers</p>
+                        <p className="font-medium text-sm">{selectedBooking.number_of_travelers}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Total Amount</p>
-                        <p className="text-lg font-bold text-blue-600">${typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price).toFixed(2) : selectedBooking.total_price?.toFixed(2)}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Total Amount</p>
+                        <p className="text-base md:text-lg font-bold text-blue-600">${typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price).toFixed(2) : selectedBooking.total_price?.toFixed(2)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Payment Method</p>
-                        <p className="font-medium capitalize">{selectedBooking.payment_method}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Payment Method</p>
+                        <p className="font-medium text-sm capitalize">{selectedBooking.payment_method}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Booking Date</p>
-                        <p className="text-sm">{new Date(selectedBooking.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs md:text-sm text-gray-600">Booking Date</p>
+                        <p className="text-xs md:text-sm">{new Date(selectedBooking.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
                   </div>
@@ -658,9 +668,9 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
           {/* Users Tab */}
           <TabsContent value="users" className="mt-6">
-            <Card className="p-6">
+            <Card className="p-4 md:p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">User Management ({allUsers.length})</h2>
+                <h2 className="text-lg md:text-xl font-bold">User Management ({allUsers.length})</h2>
               </div>
 
               {allUsers.length === 0 ? (
@@ -668,35 +678,37 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                   <p>No users found</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Wallet Balance</TableHead>
-                        <TableHead>Currency</TableHead>
-                        <TableHead>Member Since</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {allUsers.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">{user.name}</TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>
-                            <Badge className={user.role === 'admin' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}>
-                              {user.role}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="font-semibold">${user.wallet_balance.toFixed(2)}</TableCell>
-                          <TableCell>{user.preferred_currency}</TableCell>
-                          <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                  <div className="inline-block min-w-full px-4 md:px-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs md:text-sm">Name</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden sm:table-cell">Email</TableHead>
+                          <TableHead className="text-xs md:text-sm">Role</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden md:table-cell">Balance</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden lg:table-cell">Currency</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden md:table-cell">Since</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {allUsers.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell className="font-medium text-xs md:text-sm">{user.name?.substring(0, 12)}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-xs md:text-sm break-all">{user.email?.substring(0, 20)}</TableCell>
+                            <TableCell>
+                              <Badge className={`text-xs ${user.role === 'admin' ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}>
+                                {user.role}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell font-semibold text-xs md:text-sm">${user.wallet_balance.toFixed(0)}</TableCell>
+                            <TableCell className="hidden lg:table-cell text-xs md:text-sm">{user.preferred_currency}</TableCell>
+                            <TableCell className="hidden md:table-cell text-xs">{new Date(user.created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
             </Card>
@@ -704,10 +716,10 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
           {/* Transactions Tab */}
           <TabsContent value="transactions" className="mt-6">
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Transaction Logs ({allTransactions.length})</h2>
-                <div className="flex gap-2">
+            <Card className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 mb-6">
+                <h2 className="text-lg md:text-xl font-bold">Transaction Logs ({allTransactions.length})</h2>
+                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                   <select
                     value={transactionFilter}
                     onChange={(e) => setTransactionFilter(e.target.value)}
@@ -718,9 +730,9 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                     <option value="deposit">Deposits</option>
                     <option value="exchange">Exchanges</option>
                   </select>
-                  <Button className="gap-2 bg-green-600 hover:bg-green-700">
+                  <Button className="gap-2 bg-green-600 hover:bg-green-700 w-full sm:w-auto">
                     <Download className="w-4 h-4" />
-                    Export
+                    <span className="hidden sm:inline">Export</span>
                   </Button>
                 </div>
               </div>
@@ -730,49 +742,49 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                   <p>No transactions found</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>User Email</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Currency</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Date</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {allTransactions
-                        .filter(t => transactionFilter === 'all' || t.type === transactionFilter)
-                        .map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">#{transaction.id}</TableCell>
-                          <TableCell>
-                            <Badge className={
-                              transaction.type === 'booking' ? 'bg-blue-500' :
-                              transaction.type === 'deposit' ? 'bg-green-500' :
-                              'bg-purple-500'
-                            }>
-                              {transaction.type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">{transaction.user_email}</TableCell>
-                          <TableCell className="font-semibold">${typeof transaction.amount === 'string' ? parseFloat(transaction.amount).toFixed(2) : transaction.amount?.toFixed(2)}</TableCell>
-                          <TableCell>{transaction.currency}</TableCell>
-                          <TableCell>{transaction.description}</TableCell>
-                          <TableCell>
-                            <Badge className={transaction.status === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}>
-                              {transaction.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{new Date(transaction.created_at).toLocaleDateString()}</TableCell>
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                  <div className="inline-block min-w-full px-4 md:px-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs md:text-sm">ID</TableHead>
+                          <TableHead className="text-xs md:text-sm">Type</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden sm:table-cell">Email</TableHead>
+                          <TableHead className="text-xs md:text-sm">Amount</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden md:table-cell">Currency</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden lg:table-cell">Description</TableHead>
+                          <TableHead className="text-xs md:text-sm">Status</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {allTransactions
+                          .filter(t => transactionFilter === 'all' || t.type === transactionFilter)
+                          .map((transaction) => (
+                          <TableRow key={transaction.id}>
+                            <TableCell className="font-medium text-xs md:text-sm">#{transaction.id}</TableCell>
+                            <TableCell>
+                              <Badge className={`text-xs ${
+                                transaction.type === 'booking' ? 'bg-blue-500' :
+                                transaction.type === 'deposit' ? 'bg-green-500' :
+                                'bg-purple-500'
+                              }`}>
+                                {transaction.type?.substring(0, 3)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-xs md:text-sm break-all">{transaction.user_email?.substring(0, 18)}</TableCell>
+                            <TableCell className="font-semibold text-xs md:text-sm">${typeof transaction.amount === 'string' ? parseFloat(transaction.amount).toFixed(0) : transaction.amount?.toFixed(0)}</TableCell>
+                            <TableCell className="hidden md:table-cell text-xs md:text-sm">{transaction.currency}</TableCell>
+                            <TableCell className="hidden lg:table-cell text-xs md:text-sm">{transaction.description?.substring(0, 15)}</TableCell>
+                            <TableCell>
+                              <Badge className={`text-xs ${transaction.status === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
+                                {transaction.status?.substring(0, 3)}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
             </Card>
@@ -800,51 +812,54 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                   <p>No exchange rates found</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Code</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Rate (NGN)</TableHead>
-                        <TableHead>Buy Rate</TableHead>
-                        <TableHead>Sell Rate</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {databaseRates.map((rate) => (
-                        <TableRow key={rate.id}>
-                          <TableCell className="font-medium">{rate.code}</TableCell>
-                          <TableCell>{rate.name}</TableCell>
-                          <TableCell>{typeof rate.rate === 'string' ? parseFloat(rate.rate).toFixed(4) : rate.rate?.toFixed(4)}</TableCell>
-                          <TableCell>{typeof rate.buy_rate === 'string' ? parseFloat(rate.buy_rate).toFixed(4) : rate.buy_rate?.toFixed(4)}</TableCell>
-                          <TableCell>{typeof rate.sell_rate === 'string' ? parseFloat(rate.sell_rate).toFixed(4) : rate.sell_rate?.toFixed(4)}</TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleOpenRateModal(rate)}
-                                disabled={isLoading}
-                              >
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="text-red-600 hover:bg-red-50"
-                                onClick={() => handleDeleteRate(rate.id!, rate.code)}
-                                disabled={isLoading}
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                  <div className="inline-block min-w-full px-4 md:px-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-xs md:text-sm">Code</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden sm:table-cell">Name</TableHead>
+                          <TableHead className="text-xs md:text-sm">Rate</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden md:table-cell">Buy</TableHead>
+                          <TableHead className="text-xs md:text-sm hidden lg:table-cell">Sell</TableHead>
+                          <TableHead className="text-xs md:text-sm">Actions</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {databaseRates.map((rate) => (
+                          <TableRow key={rate.id}>
+                            <TableCell className="font-medium text-xs md:text-sm">{rate.code}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-xs md:text-sm">{rate.name?.substring(0, 12)}</TableCell>
+                            <TableCell className="text-xs md:text-sm">{typeof rate.rate === 'string' ? parseFloat(rate.rate).toFixed(2) : rate.rate?.toFixed(2)}</TableCell>
+                            <TableCell className="hidden md:table-cell text-xs md:text-sm">{typeof rate.buy_rate === 'string' ? parseFloat(rate.buy_rate).toFixed(2) : rate.buy_rate?.toFixed(2)}</TableCell>
+                            <TableCell className="hidden lg:table-cell text-xs md:text-sm">{typeof rate.sell_rate === 'string' ? parseFloat(rate.sell_rate).toFixed(2) : rate.sell_rate?.toFixed(2)}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="text-xs px-2"
+                                  onClick={() => handleOpenRateModal(rate)}
+                                  disabled={isLoading}
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="text-red-600 hover:bg-red-50 text-xs px-2"
+                                  onClick={() => handleDeleteRate(rate.id!, rate.code)}
+                                  disabled={isLoading}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
             </Card>
@@ -856,19 +871,19 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
       {showRateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex items-center justify-between sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold">
+            <div className="p-4 md:p-6 border-b flex items-center justify-between sticky top-0 bg-white">
+              <h2 className="text-lg md:text-2xl font-bold">
                 {editingRate ? 'Edit Exchange Rate' : 'Add Exchange Rate'}
               </h2>
               <button 
                 onClick={handleCloseRateModal}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveRate} className="p-6 space-y-4">
+            <form onSubmit={handleSaveRate} className="p-4 md:p-6 space-y-4">
               <div>
                 <Label htmlFor="code">Currency Code *</Label>
                 <Input
@@ -969,20 +984,20 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex items-center justify-between sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold">
+            <div className="p-4 md:p-6 border-b flex items-center justify-between sticky top-0 bg-white">
+              <h2 className="text-lg md:text-2xl font-bold">
                 {editingTour ? 'Edit Tour' : 'Create New Tour'}
               </h2>
               <button 
                 onClick={handleCloseModal}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveTour} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSaveTour} className="p-4 md:p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Tour Name *</Label>
                   <Input
