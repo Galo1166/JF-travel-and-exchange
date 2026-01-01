@@ -276,16 +276,22 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
     setIsLoading(true);
     try {
+      if (!user) {
+        toast.error('Not authenticated. Please log in.');
+        return;
+      }
+
+      const token = await user.getIdToken();
       let result;
       if (editingTour?.id) {
-        result = await updateTour(editingTour.id, formData);
+        result = await updateTour(editingTour.id, formData, token);
         if (result.success) {
           toast.success('Tour updated successfully');
         } else {
           toast.error(result.error || 'Failed to update tour');
         }
       } else {
-        result = await createTour(formData as TourData);
+        result = await createTour(formData as TourData, token);
         if (result.success) {
           toast.success('Tour created successfully');
         } else {
@@ -310,7 +316,13 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
     setIsLoading(true);
     try {
-      const result = await deleteTour(id);
+      if (!user) {
+        toast.error('Not authenticated. Please log in.');
+        return;
+      }
+
+      const token = await user.getIdToken();
+      const result = await deleteTour(id, token);
       if (result.success) {
         toast.success('Tour deleted successfully');
         await loadTours();

@@ -109,7 +109,7 @@ export async function getTourById(id: number): Promise<{
 /**
  * Create a new tour
  */
-export async function createTour(tourData: TourData): Promise<{
+export async function createTour(tourData: TourData, token?: string): Promise<{
   success: boolean;
   tour?: TourData;
   error?: string;
@@ -167,8 +167,14 @@ export async function createTour(tourData: TourData): Promise<{
       });
     }
     
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/tours`, {
       method: 'POST',
+      headers,
       body: formData,
     });
 
@@ -199,7 +205,7 @@ export async function createTour(tourData: TourData): Promise<{
 /**
  * Update an existing tour
  */
-export async function updateTour(id: number, tourData: Partial<TourData>): Promise<{
+export async function updateTour(id: number, tourData: Partial<TourData>, token?: string): Promise<{
   success: boolean;
   tour?: TourData;
   error?: string;
@@ -257,8 +263,15 @@ export async function updateTour(id: number, tourData: Partial<TourData>): Promi
     // Use POST with method override for file uploads because many PHP setups
     // (including PHP-FPM/nginx) do not parse multipart bodies on PUT requests.
     formData.append('_method', 'PUT');
+    
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/tours/${id}`, {
       method: 'POST',
+      headers,
       body: formData,
     });
 
@@ -289,7 +302,7 @@ export async function updateTour(id: number, tourData: Partial<TourData>): Promi
 /**
  * Delete a tour
  */
-export async function deleteTour(id: number): Promise<{
+export async function deleteTour(id: number, token?: string): Promise<{
   success: boolean;
   message?: string;
   error?: string;
@@ -305,11 +318,17 @@ export async function deleteTour(id: number): Promise<{
 
     console.log('deleteTour: Deleting tour', id);
     
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(`${API_BASE_URL}/tours/${id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     console.log('deleteTour: Response status', response.status);
