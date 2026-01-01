@@ -389,7 +389,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
             <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-            <p className="text-3xl font-bold text-gray-900">{formatCurrency(totalRevenue, selectedCurrency)}</p>
+            <p className="text-3xl font-bold text-gray-900">{formatCurrency(convertCurrency(totalRevenue, 'USD', selectedCurrency), selectedCurrency)}</p>
             <p className="text-xs text-gray-600 mt-2">From {totalBookings} bookings</p>
           </Card>
 
@@ -468,7 +468,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                         <TableRow key={tour.id}>
                           <TableCell className="font-medium text-xs md:text-sm">{tour.name?.substring(0, 12)}</TableCell>
                           <TableCell className="hidden sm:table-cell text-xs md:text-sm">{tour.destination?.substring(0, 12)}</TableCell>
-                          <TableCell className="font-semibold text-xs md:text-sm">{formatCurrency(typeof tour.price === 'string' ? parseFloat(tour.price) : (tour.price || 0), selectedCurrency)}</TableCell>
+                          <TableCell className="font-semibold text-xs md:text-sm">{formatCurrency(convertCurrency(typeof tour.price === 'string' ? parseFloat(tour.price) : (tour.price || 0), 'USD', selectedCurrency), selectedCurrency)}</TableCell>
                           <TableCell className="hidden md:table-cell text-xs md:text-sm">{tour.duration}</TableCell>
                           <TableCell className="hidden lg:table-cell text-xs md:text-sm">{tour.rating || 0}⭐</TableCell>
                           <TableCell className="hidden md:table-cell">
@@ -569,7 +569,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                             </TableCell>
                             <TableCell className="hidden md:table-cell text-xs md:text-sm">{booking.tour_name?.substring(0, 15)}</TableCell>
                             <TableCell className="hidden lg:table-cell text-xs md:text-sm">{new Date(booking.travel_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</TableCell>
-                            <TableCell className="font-semibold text-xs md:text-sm">{formatCurrency(typeof booking.total_price === 'string' ? parseFloat(booking.total_price) : (booking.total_price || 0), selectedCurrency)}</TableCell>
+                            <TableCell className="font-semibold text-xs md:text-sm">{formatCurrency(convertCurrency(typeof booking.total_price === 'string' ? parseFloat(booking.total_price) : (booking.total_price || 0), 'USD', selectedCurrency), selectedCurrency)}</TableCell>
                             <TableCell>
                               <Badge
                                 className={`text-white font-medium text-xs ${
@@ -670,7 +670,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-600">Total Amount</p>
-                        <p className="text-base md:text-lg font-bold text-blue-600">{formatCurrency(typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price) : (selectedBooking.total_price || 0), selectedCurrency)}</p>
+                        <p className="text-base md:text-lg font-bold text-blue-600">{formatCurrency(convertCurrency(typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price) : (selectedBooking.total_price || 0), 'USD', selectedCurrency), selectedCurrency)}</p>
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-600">Payment Method</p>
@@ -722,7 +722,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                                 {user.role}
                               </Badge>
                             </TableCell>
-                            <TableCell className="hidden md:table-cell font-semibold text-xs md:text-sm">{formatCurrency(user.wallet_balance || 0, selectedCurrency)}</TableCell>
+                            <TableCell className="hidden md:table-cell font-semibold text-xs md:text-sm">{formatCurrency(convertCurrency(user.wallet_balance || 0, 'USD', selectedCurrency), selectedCurrency)}</TableCell>
                             <TableCell className="hidden lg:table-cell text-xs md:text-sm">{user.preferred_currency}</TableCell>
                             <TableCell className="hidden md:table-cell text-xs">{new Date(user.created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</TableCell>
                           </TableRow>
