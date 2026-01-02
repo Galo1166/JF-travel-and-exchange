@@ -3,12 +3,124 @@
 namespace App\Http\Controllers;
 
 use App\Models\CurrencyRate;
+use App\Services\CurrencyRateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class ExchangeRateController extends Controller
 {
+    protected $currencyRateService;
+
+    public function __construct(CurrencyRateService $currencyRateService)
+    {
+        $this->currencyRateService = $currencyRateService;
+    }
+
+    /**
+     * Get live exchange rates from API
+     */
+    public function getLiveRates(Request $request): JsonResponse
+    {
+        try {
+            $base = $request->query('base', 'USD');
+
+            Log::info('ExchangeRateController@getLiveRates: Fetching live rates', ['base' => $base]);
+
+            if (!$this->currencyRateService->isConfigured()) {
+                Log::warning('ExchangeRateController@getLiveRates: API key not configured');
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Currency rate service not configured',
+                ], 503);
+            }
+
+            $rates = $this->currencyRateService->getCommonRates($base);
+
+            if (empty($rates)) {
+                Log::warning('ExchangeRateController@getLiveRates: No rates returned from API');
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Failed to fetch live rates',
+                ], 503);
+            }
+
+            return response()->json([
+                'success' => true,
+                'base' => $base,
+                'rates' => $rates,
+                'timestamp' => now()->timestamp,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('ExchangeRateController@getLiveRates: Error', [
+                'message' => $e->getMessage(),
+                'stack' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to fetch exchange rates',
+            ], 500);
+        }
+    }
+
+    /**
+     * Convert amount between two currencies using live rates
+     */
+    public function convert(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'amount' => 'required|numeric|min:0',
+                'from' => 'required|string|size:3',
+                'to' => 'required|string|size:3',
+            ]);
+
+            Log::info('ExchangeRateController@convert: Converting currency', $validated);
+
+            if (!$this->currencyRateService->isConfigured()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Currency rate service not configured',
+                ], 503);
+            }
+
+            $converted = $this->currencyRateService->convert(
+                $validated['amount'],
+                $validated['from'],
+                $validated['to']
+            );
+
+            return response()->json([
+                'success' => true,
+                'amount' => $validated['amount'],
+                'from' => $validated['from'],
+                'to' => $validated['to'],
+                'converted' => $converted,
+                'timestamp' => now()->timestamp,
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('ExchangeRateController@convert: Validation failed', [
+                'errors' => $e->errors(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('ExchangeRateController@convert: Error', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Conversion failed',
+            ], 500);
+        }
+    }
+
     /**
      * Get all exchange rates
      */

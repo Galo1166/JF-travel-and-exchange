@@ -55,9 +55,13 @@ Route::prefix('bookings')->group(function () {
     });
 });
 
-// Exchange Rate routes (admin only in future)
+// Exchange Rate routes
 Route::prefix('exchange-rates')->group(function () {
-    // Public routes
+    // Live rates endpoints (public - cached)
+    Route::get('/live', [ExchangeRateController::class, 'getLiveRates']);
+    Route::post('/convert', [ExchangeRateController::class, 'convert']);
+    
+    // Database rate management routes
     Route::get('/', [ExchangeRateController::class, 'index']);
     Route::get('{id}', [ExchangeRateController::class, 'show']);
     
