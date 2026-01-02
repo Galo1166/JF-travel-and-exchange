@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeftRight, TrendingUp, Clock } from 'lucide-react';
+import { ArrowLeftRight, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -46,6 +46,7 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
   const [convertedAmount, setConvertedAmount] = useState('0.0649');
   const [exchangeRates, setExchangeRates] = useState<ExchangeRateData[]>(DEFAULT_CURRENCIES);
   const [isLoading, setIsLoading] = useState(true);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   /* ===============================
      FETCH EXCHANGE RATES (SAFE)
@@ -169,7 +170,19 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
       onNavigate('login');
       return;
     }
+    // Show confirmation modal instead of immediately processing
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmExchange = () => {
+    setShowConfirmation(false);
     toast.success('Exchange order placed successfully!');
+    // Reset form
+    setAmount('100');
+  };
+
+  const handleCancelExchange = () => {
+    setShowConfirmation(false);
   };
 
   const safeRates = Array.isArray(exchangeRates) ? exchangeRates : currencyRates;
@@ -399,6 +412,112 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
           )}
         </div>
       </section>
+
+      {/* CONFIRMATION MODAL */}
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md shadow-2xl border-0">
+            <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 rounded-t-lg">
+              <div className="flex items-center justify-center gap-3">
+                <CheckCircle className="w-8 h-8 text-white" />
+                <h2 className="text-2xl font-bold text-white">Confirm Exchange</h2>
+              </div>
+            </div>
+
+            <div className="p-8 space-y-6">
+              {/* Exchange Details */}
+              <div className="space-y-4">
+                {/* Sending */}
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                  <p className="text-xs text-gray-600 font-semibold uppercase mb-2">You Send</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-3xl font-bold text-blue-600">{amount}</p>
+                      <p className="text-sm text-gray-600 mt-1">{fromCurrency}</p>
+                    </div>
+                    <span className="text-4xl">
+                      {exchangeRates.find(r => r.code === fromCurrency)?.flag}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex justify-center">
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full p-3">
+                    <ArrowLeftRight className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+
+                {/* Receiving */}
+                <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 p-4 rounded-lg">
+                  <p className="text-xs text-gray-600 font-semibold uppercase mb-2">You Receive</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-3xl font-bold text-cyan-600">{convertedAmount}</p>
+                      <p className="text-sm text-gray-600 mt-1">{toCurrency}</p>
+                    </div>
+                    <span className="text-4xl">
+                      {exchangeRates.find(r => r.code === toCurrency)?.flag}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exchange Rate Info */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Exchange Rate:</span>
+                    <span className="font-semibold text-gray-900">
+                      1 {fromCurrency} = {(() => {
+                        const fromRate = exchangeRates.find(r => r.code === fromCurrency);
+                        const toRate = exchangeRates.find(r => r.code === toCurrency);
+                        if (!fromRate || !toRate) return '0.0000';
+                        const rate = parseFloat(String(fromRate.rate)) || 1;
+                        const toRateVal = parseFloat(String(toRate.rate)) || 1;
+                        return (rate / toRateVal).toFixed(4);
+                      })()} {toCurrency}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Amount to Send:</span>
+                    <span className="font-semibold text-gray-900">{amount} {fromCurrency}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Amount to Receive:</span>
+                    <span className="font-semibold text-cyan-600">{convertedAmount} {toCurrency}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fee Notice */}
+              <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                <p className="text-xs text-amber-800">
+                  <span className="font-semibold">Note:</span> A small processing fee may be applied to your exchange.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <Button
+                  onClick={handleConfirmExchange}
+                  className="w-full h-11 text-base font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                >
+                  Confirm Exchange
+                </Button>
+                <Button
+                  onClick={handleCancelExchange}
+                  variant="outline"
+                  className="w-full h-11 text-base font-semibold text-gray-700 border border-gray-300 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
+
