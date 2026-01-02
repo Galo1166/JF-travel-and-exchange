@@ -657,7 +657,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                         <p className="text-xs md:text-sm break-all">{selectedBooking.user_email}</p>
                       </div>
                       <div>
-                        <p className="text-xs md:text-sm text-gray-600">Customer Phone</p>
+                        <p className="text-xs md:text-sm text-gray-600">Booking Phone</p>
                         <p className="text-xs md:text-sm font-medium">{selectedBooking.phone || 'N/A'}</p>
                       </div>
                       <div>
