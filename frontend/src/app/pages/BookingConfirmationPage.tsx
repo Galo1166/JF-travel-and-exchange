@@ -150,6 +150,18 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
               <p className="text-sm text-gray-600 mt-2">
                 Keep this number for your records. It will be sent to your email.
               </p>
+              
+              {/* Contact Info in Confirmation */}
+              <div className="mt-4 pt-4 border-t border-green-200 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm"><strong>Email:</strong> {email}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm"><strong>Phone:</strong> {phone}</span>
+                </div>
+              </div>
             </Card>
 
             {/* Tour Details */}
