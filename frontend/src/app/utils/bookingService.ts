@@ -10,6 +10,7 @@ export interface BookingData {
   user_id: number;
   user_name?: string;
   user_email?: string;
+  phone?: string;
   tour_id: number;
   tour_name?: string;
   booking_date: string;
@@ -17,6 +18,7 @@ export interface BookingData {
   number_of_travelers: number;
   total_price: number | string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  payment_method?: string;
   created_at?: string;
   updated_at?: string;
 }
