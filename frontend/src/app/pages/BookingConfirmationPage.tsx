@@ -94,6 +94,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
 
   // Safely extract required fields with defaults
   const confirmationNumber = booking?.id || Math.random().toString(36).substr(2, 9).toUpperCase();
+  const bookedCurrency = booking?.currency || selectedCurrency || 'USD';
   
   let travelDate = 'TBD';
   if (booking?.travel_date) {
@@ -281,7 +282,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
                     typeof totalPrice === 'string' 
                       ? parseFloat(totalPrice) 
                       : totalPrice,
-                    selectedCurrency
+                    "USD"
                   )}
                 </span>
               </div>
