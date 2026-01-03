@@ -17,6 +17,7 @@ class TourBooking extends Model
         'travel_date',
         'number_of_travelers',
         'total_price',
+        'currency',
         'status',
         'full_name',
         'email',
