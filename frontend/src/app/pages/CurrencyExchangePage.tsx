@@ -55,7 +55,7 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
     const fetchExchangeRates = async () => {
       try {
         console.log('🔄 Fetching exchange rates from database...');
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const apiUrl = (import.meta.env as any).VITE_API_URL || 'http://localhost:8000/api';
         const response = await fetch(`${apiUrl}/exchange-rates`);
         console.log('📡 API Response status:', response.status);
         
@@ -236,18 +236,11 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
   return (
     <div className="min-h-screen bg-gray-50">
       {/* HERO */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{
-            backgroundImage:
-              'url("https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=1200&h=500&fit=crop")',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-cyan-600/80" />
+      <section className="relative h-96 flex items-center justify-center text-white overflow-hidden" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1574482620811-1aa16ffe3c82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080")', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/30" />
         <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <h1 className="text-5xl font-bold mb-6">At JF Exchange</h1>
-          <p className="text-xl text-blue-100">
+          <p className="text-xl text-gray-100">
             Get the best exchange rates with transparent pricing and instant conversion
           </p>
         </div>
@@ -399,11 +392,11 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Buy (NGN)</span>
-                      <span className="font-semibold text-green-600">{safeFixed(toNaira(rate.buy_rate ?? rate.buyRate, rate.code))}</span>
+                      <span className="font-semibold text-green-600">{safeFixed(toNaira(rate.buyRate ?? rate.buyRate, rate.code))}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Sell (NGN)</span>
-                      <span className="font-semibold text-orange-600">{safeFixed(toNaira(rate.sell_rate ?? rate.sellRate, rate.code))}</span>
+                      <span className="font-semibold text-orange-600">{safeFixed(toNaira(rate.sellRate ?? rate.sellRate, rate.code))}</span>
                     </div>
                   </div>
                 </Card>

@@ -93,10 +93,11 @@ export function ToursPage({ onNavigate, initialFilter, selectedCurrency = 'USD' 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="relative h-96 flex items-center justify-center text-white overflow-hidden" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080")', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/30" />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <h1 className="text-5xl font-bold mb-4">Our Tour Packages</h1>
-          <p className="text-xl text-blue-100">
+          <p className="text-xl text-gray-100">
             Browse through our carefully curated collection of tours
           </p>
           {usingMockData && (

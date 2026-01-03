@@ -93,7 +93,7 @@ export function Footer({ onNavigate }: FooterProps) {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-400" />
-                <span>Tundaas Ultra Modern Market Mile 12, Shop No: 18</span>
+                <a href="https://maps.google.com/?q=Tundaas+Ultra+Modern+Market+Mile+12+Shop+18+Lagos" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Tundaas Ultra Modern Market Mile 12, Shop No: 18</a>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Phone className="w-4 h-4 flex-shrink-0 text-blue-400" />

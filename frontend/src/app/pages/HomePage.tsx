@@ -32,14 +32,16 @@ export function HomePage({ onNavigate, selectedCurrency = 'USD' }: HomePageProps
     loadTours();
   }, []);
 
-  const featuredTours = databaseTours.length > 0 ? databaseTours.slice(0, 3) : tours.slice(0, 3);
+  const featuredTours = databaseTours.length > 0 
+    ? databaseTours.filter(t => t.id !== undefined).slice(0, 3) 
+    : tours.slice(0, 3);
   const usdToLocal = currencyRates.find(r => r.code === 'NGN');
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1548932134-3d7d765bece2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBhZHZlbnR1cmUlMjBtb3VudGFpbnxlbnwxfHx8fDE3NjY3NjUzMTR8MA&ixlib=rb-4.1.0&q=80&w=1080')] bg-cover bg-center opacity-20" />
+      <section className="relative h-[600px] flex items-center justify-center text-white overflow-hidden" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080")', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/30" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             Explore the World with Confidence

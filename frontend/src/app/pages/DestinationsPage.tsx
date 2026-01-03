@@ -90,10 +90,11 @@ export function DestinationsPage({ onNavigate }: DestinationsPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-20">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      <section className="relative h-96 flex items-center justify-center text-white overflow-hidden" style={{backgroundImage: 'url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080")', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/30" />
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <h1 className="text-5xl font-bold mb-6">Explore Our Destinations</h1>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-gray-100 mb-8">
             Discover amazing places around the world waiting for you to explore
           </p>
           
