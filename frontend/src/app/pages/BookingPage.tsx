@@ -133,6 +133,9 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
 
   const convertedPrice = convertCurrency(tour.price, 'USD', selectedCurrency);
   const totalPrice = convertedPrice * formData.travelers;
+  
+  // Convert back to USD for backend storage (backend always stores in USD)
+  const priceInUSD = selectedCurrency === 'USD' ? totalPrice : convertCurrency(totalPrice, selectedCurrency, 'USD');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,7 +181,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
         tour_id: typeof tour.id === 'string' ? parseInt(tour.id, 10) : tour.id,
         travel_date: formData.date,
         number_of_travelers: formData.travelers,
-        total_price: totalPrice,
+        total_price: priceInUSD,
         currency: selectedCurrency,
         full_name: formData.fullName,
         email: formData.email,
@@ -190,7 +193,8 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
 
       console.log('=== BOOKING DATA ===');
       console.log('Selected Currency:', selectedCurrency);
-      console.log('Converted Price:', totalPrice);
+      console.log('Display Price (in selected currency):', totalPrice);
+      console.log('Stored Price (in USD):', priceInUSD);
       console.log('Full Booking Data:', bookingData);
 
       console.log('Processing booking:', bookingData);
