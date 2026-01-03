@@ -1,4 +1,4 @@
-import { Plane, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
+import { Plane, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin, MessageCircle, MessageCircle as WhatsApp } from 'lucide-react';
 import logo from '../../assets/logo.png';
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -27,17 +27,18 @@ export function Footer({ onNavigate }: FooterProps) {
               Your trusted partner for unforgettable travel experiences and reliable currency exchange services.
             </p>
             <div className="flex gap-3">
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+              <a href="https://www.facebook.com/jftravelstous" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
                 <Facebook className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+              <a href="https://www.instagram.com/jftravelstous" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+              <a href="https://twitter.com/jftravelstous" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
-                <Linkedin className="w-4 h-4" />
+             
+              <a href="https://wa.me/08033206440" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-500 transition-colors">
+                <WhatsApp className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -92,15 +93,15 @@ export function Footer({ onNavigate }: FooterProps) {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-400" />
-                <span>123 Travel Street, Tourism District, Lagos, Nigeria</span>
+                <span>Tundaas Ultra Modern Market Mile 12, Shop No: 18</span>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Phone className="w-4 h-4 flex-shrink-0 text-blue-400" />
-                <span>+234 123 456 7890</span>
+                <a href="tel:08033206440">08033206440</a>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Mail className="w-4 h-4 flex-shrink-0 text-blue-400" />
-                <span>info@jftravels.com</span>
+                <a href="mailto:jftravestousexchage@gmail.com">jftravestousexchage@gmail.com</a>
               </li>
             </ul>
           </div>
@@ -108,7 +109,7 @@ export function Footer({ onNavigate }: FooterProps) {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-          <p>&copy; 2024 JF Travels & Bureau de Change. All rights reserved.</p>
+          <p>&copy; 2026 JF Travels & Bureau de Change. All rights reserved. Dev By GaloTech</p>
           <div className="flex justify-center gap-6 mt-2">
             <a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a>
