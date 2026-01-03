@@ -283,7 +283,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
                       ? parseFloat(totalPrice)
                       : totalPrice,
                     "USD"
-                  )} USD
+                  )}
                 </span>
 
               </div>
