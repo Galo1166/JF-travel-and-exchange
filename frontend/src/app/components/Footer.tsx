@@ -109,7 +109,7 @@ export function Footer({ onNavigate }: FooterProps) {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-          <p>&copy; 2026 JF Travels & Bureau de Change. All rights reserved. Dev By GaloTech</p>
+          <p>&copy; 2026 JF Travels & Bureau de Change. All rights reserved. Dev By <a href="https://www.instagram.com/galo__tech">GaloTech</a> </p>
           <div className="flex justify-center gap-6 mt-2">
             <a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-blue-400 transition-colors">Terms of Service</a>
