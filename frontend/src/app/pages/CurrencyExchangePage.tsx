@@ -22,7 +22,7 @@ interface ExchangeRateData {
 
 // Default currencies to always include
 const DEFAULT_CURRENCIES: ExchangeRateData[] = [
-  { id: '1', code: 'USD', name: 'US Dollar', rate: 1540, flag: '🇺🇸', buy_rate: 1530, sell_rate: 1550 },
+  { id: '1', code: 'USD', name: 'US Dollar', rate: 1440, flag: '🇺🇸', buy_rate: 1430, sell_rate: 1450 },
   { id: '2', code: 'NGN', name: 'Nigerian Naira', rate: 1, flag: '🇳🇬', buy_rate: 1, sell_rate: 1},
   { id: '3', code: 'EUR', name: 'Euro', rate: 0.92, flag: '🇪🇺', buy_rate: 0.91, sell_rate: 0.93 },
   { id: '4', code: 'GBP', name: 'British Pound', rate: 0.79, flag: '🇬🇧', buy_rate: 0.78, sell_rate: 0.80 },
@@ -55,7 +55,7 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
     const fetchExchangeRates = async () => {
       try {
         console.log('🔄 Fetching exchange rates from database...');
-        const apiUrl = (import.meta.env as any).VITE_API_URL || 'http://localhost:8000/api';
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
         const response = await fetch(`${apiUrl}/exchange-rates`);
         console.log('📡 API Response status:', response.status);
         

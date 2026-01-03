@@ -412,9 +412,9 @@ export const currencyRates: CurrencyRate[] = [
   {
     code: 'NGN',
     name: 'Nigerian Naira',
-    rate: 1542.00,
-    buyRate: 1535.00,
-    sellRate: 1549.00,
+    rate: 1440.00,
+    buyRate: 1450.00,
+    sellRate: 1440.00,
     flag: '🇳🇬'
   },
   {
