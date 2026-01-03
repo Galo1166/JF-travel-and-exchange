@@ -95,7 +95,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
   // Safely extract required fields with defaults
   const confirmationNumber = booking?.id || Math.random().toString(36).substr(2, 9).toUpperCase();
   const bookedCurrency = booking?.currency || selectedCurrency || 'USD';
-  
+
   let travelDate = 'TBD';
   if (booking?.travel_date) {
     try {
@@ -110,10 +110,10 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
       travelDate = booking.travel_date;
     }
   }
-  
+
   const travelers = booking?.number_of_travelers || 1;
-  const totalPrice = typeof booking?.total_price === 'string' 
-    ? parseFloat(booking.total_price) || 0 
+  const totalPrice = typeof booking?.total_price === 'string'
+    ? parseFloat(booking.total_price) || 0
     : (booking?.total_price || 0);
   const fullName = booking?.full_name || 'Guest';
   const email = booking?.email || 'Not provided';
@@ -124,8 +124,8 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
   const destination = tour?.destination || 'Destination';
   const country = tour?.country || 'Country';
   const duration = tour?.duration || 'Duration TBD';
-  const price = typeof tour?.price === 'string' 
-    ? parseFloat(tour.price) || 0 
+  const price = typeof tour?.price === 'string'
+    ? parseFloat(tour.price) || 0
     : (tour?.price || 0);
   const tourImage = tour?.image;
 
@@ -151,7 +151,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
               <p className="text-sm text-gray-600 mt-2">
                 Keep this number for your records. It will be sent to your email.
               </p>
-              
+
               {/* Contact Info in Confirmation */}
               <div className="mt-4 pt-4 border-t border-green-200 space-y-2">
                 <div className="flex items-center gap-2">
@@ -168,7 +168,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
             {/* Tour Details */}
             <Card className="p-6">
               <h3 className="font-bold text-lg mb-4">Tour Details</h3>
-              
+
               <div className="flex gap-4 mb-4">
                 <img
                   src={getTourImageUrl(tourImage)}
@@ -195,7 +195,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
             {/* Booking Information */}
             <Card className="p-6">
               <h3 className="font-bold text-lg mb-4">Booking Information</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-gray-600 flex items-center gap-2">
@@ -233,7 +233,7 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
             {/* Traveler Information */}
             <Card className="p-6">
               <h3 className="font-bold text-lg mb-4">Traveler Information</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-gray-600">Full Name</span>
@@ -279,12 +279,13 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
                 <span className="font-bold">Total Amount</span>
                 <span className="text-2xl font-bold text-green-600">
                   {formatCurrency(
-                    typeof totalPrice === 'string' 
-                      ? parseFloat(totalPrice) 
+                    typeof totalPrice === 'string'
+                      ? parseFloat(totalPrice)
                       : totalPrice,
                     "USD"
-                  )}
+                  )} USD
                 </span>
+
               </div>
 
               <div className="bg-blue-50 p-4 rounded-lg mb-6">
@@ -294,14 +295,14 @@ export function BookingConfirmationPage({ bookingData, onNavigate, selectedCurre
               </div>
 
               <div className="space-y-3">
-                <Button 
-                  onClick={() => onNavigate('dashboard')} 
+                <Button
+                  onClick={() => onNavigate('dashboard')}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
                   Go to Dashboard
                 </Button>
-                <Button 
-                  onClick={() => onNavigate('tours')} 
+                <Button
+                  onClick={() => onNavigate('tours')}
                   variant="outline"
                   className="w-full"
                 >
