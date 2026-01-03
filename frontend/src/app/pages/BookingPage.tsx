@@ -188,6 +188,11 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
         status: 'pending',
       };
 
+      console.log('=== BOOKING DATA ===');
+      console.log('Selected Currency:', selectedCurrency);
+      console.log('Converted Price:', totalPrice);
+      console.log('Full Booking Data:', bookingData);
+
       console.log('Processing booking:', bookingData);
 
       // Get Firebase token for authentication
