@@ -179,6 +179,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
         travel_date: formData.date,
         number_of_travelers: formData.travelers,
         total_price: totalPrice,
+        currency: selectedCurrency,
         full_name: formData.fullName,
         email: formData.email,
         phone: formData.phone,

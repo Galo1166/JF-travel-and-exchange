@@ -17,6 +17,7 @@ export interface BookingData {
   travel_date: string;
   number_of_travelers: number;
   total_price: number | string;
+  currency?: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   payment_method?: string;
   created_at?: string;
