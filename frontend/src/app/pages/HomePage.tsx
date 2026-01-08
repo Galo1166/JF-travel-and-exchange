@@ -14,6 +14,7 @@ interface HomePageProps {
 export function HomePage({ onNavigate, selectedCurrency = 'USD' }: HomePageProps) {
   const [databaseTours, setDatabaseTours] = useState<TourData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [usdToNgnRate, setUsdToNgnRate] = useState<number>(1421.41); // Live rate from API
 
   useEffect(() => {
     const loadTours = async () => {
@@ -32,10 +33,29 @@ export function HomePage({ onNavigate, selectedCurrency = 'USD' }: HomePageProps
     loadTours();
   }, []);
 
+  // Fetch live exchange rate
+  useEffect(() => {
+    const fetchLiveRate = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+        const response = await fetch(`${apiUrl}/exchange-rates/live?base=NGN`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.rates?.USD) {
+            setUsdToNgnRate(parseFloat(data.rates.USD));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching live rate:', error);
+      }
+    };
+
+    fetchLiveRate();
+  }, []);
+
   const featuredTours = databaseTours.length > 0 
     ? databaseTours.filter(t => t.id !== undefined).slice(0, 3) 
     : tours.slice(0, 3);
-  const usdToLocal = currencyRates.find(r => r.code === 'NGN');
 
   return (
     <div className="min-h-screen">
@@ -81,7 +101,7 @@ export function HomePage({ onNavigate, selectedCurrency = 'USD' }: HomePageProps
                 <div>
                   <p className="text-sm text-blue-100">Current Exchange Rate</p>
                   <p className="text-2xl font-bold">
-                    1 USD = {usdToLocal?.rate.toFixed(2)} {usdToLocal?.code}
+                    1 USD = {usdToNgnRate.toFixed(2)} NGN
                   </p>
                 </div>
               </div>

@@ -19,7 +19,7 @@ class CurrencyRateService
     /**
      * Get exchange rate from one currency to another
      */
-    public function getRate($from = 'USD', $to = 'NGN')
+    public function getRate($from = 'NGN', $to = 'USD')
     {
         $cacheKey = "exchange_rate_{$from}_{$to}";
         
@@ -44,20 +44,35 @@ class CurrencyRateService
     /**
      * Get all exchange rates for a given base currency
      */
-    public function getAllRates($base = 'USD')
+    public function getAllRates($base = 'NGN')
     {
         $cacheKey = "exchange_rates_{$base}";
         
         return Cache::remember($cacheKey, $this->cacheExpiry, function () use ($base) {
             try {
-                $response = Http::timeout(10)->get("{$this->baseUrl}/{$base}");
+                // Always fetch from USD for accuracy, then convert to requested base
+                $response = Http::timeout(10)->get("{$this->baseUrl}/USD");
                 
-                if ($response->successful()) {
-                    return $response->json('rates');
+                if (!$response->successful()) {
+                    Log::warning("Exchange Rate API returned unsuccessful status: {$response->status()}");
+                    return [];
                 }
                 
-                Log::warning("Exchange Rate API returned unsuccessful status: {$response->status()}");
-                return [];
+                $rates = $response->json('rates');
+                
+                // If requesting NGN base, convert all rates
+                if ($base === 'NGN') {
+                    $ngnPerUsd = $rates['NGN'] ?? 1600;
+                    $convertedRates = [];
+                    foreach ($rates as $code => $rateFromUsd) {
+                        if ($rateFromUsd > 0) {
+                            $convertedRates[$code] = round($ngnPerUsd / $rateFromUsd * 100) / 100;
+                        }
+                    }
+                    return $convertedRates;
+                }
+                
+                return $rates;
             } catch (\Exception $e) {
                 Log::error("Currency Rate Service Error: " . $e->getMessage());
                 return [];
@@ -68,32 +83,45 @@ class CurrencyRateService
     /**
      * Get specific rates for common currencies
      */
-    public function getCommonRates($base = 'USD')
+    public function getCommonRates($base = 'NGN')
     {
         $cacheKey = "exchange_rates_common_{$base}";
         
         return Cache::remember($cacheKey, $this->cacheExpiry, function () use ($base) {
             try {
-                $response = Http::timeout(10)->get("{$this->baseUrl}/{$base}");
+                // Always fetch from USD for accuracy, then convert to requested base
+                $response = Http::timeout(10)->get("{$this->baseUrl}/USD");
                 
-                if ($response->successful()) {
-                    $allRates = $response->json('rates');
-                    
-                    // Return only common currencies
-                    $commonCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'NGN', 'KES', 'ZAR', 'EGP'];
-                    
-                    $rates = [];
+                if (!$response->successful()) {
+                    Log::warning("Exchange Rate API returned unsuccessful status: {$response->status()}");
+                    return [];
+                }
+                
+                $allRates = $response->json('rates');
+                
+                // Return only common currencies
+                $commonCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'NGN', 'KES', 'ZAR', 'EGP', 'GHS', 'CNY', 'AED', 'CHF', 'INR'];
+                
+                $rates = [];
+                
+                if ($base === 'NGN') {
+                    // Convert all rates to NGN
+                    $ngnPerUsd = $allRates['NGN'] ?? 1600;
+                    foreach ($commonCurrencies as $currency) {
+                        if (isset($allRates[$currency]) && $allRates[$currency] > 0) {
+                            $rates[$currency] = round($ngnPerUsd / $allRates[$currency] * 100) / 100;
+                        }
+                    }
+                } else {
+                    // Return raw rates for other bases
                     foreach ($commonCurrencies as $currency) {
                         if (isset($allRates[$currency])) {
                             $rates[$currency] = $allRates[$currency];
                         }
                     }
-                    
-                    return $rates;
                 }
                 
-                Log::warning("Exchange Rate API returned unsuccessful status: {$response->status()}");
-                return [];
+                return $rates;
             } catch (\Exception $e) {
                 Log::error("Currency Rate Service Error: " . $e->getMessage());
                 return [];
@@ -104,7 +132,7 @@ class CurrencyRateService
     /**
      * Convert amount from one currency to another using live rates
      */
-    public function convert($amount, $from = 'USD', $to = 'NGN')
+    public function convert($amount, $from = 'NGN', $to = 'USD')
     {
         if ($from === $to) {
             return $amount;
@@ -123,10 +151,11 @@ class CurrencyRateService
     /**
      * Update database rates from API
      */
-    public function updateDatabaseRates($base = 'USD')
+    public function updateDatabaseRates($base = 'NGN')
     {
         try {
-            $response = Http::timeout(20)->get("{$this->baseUrl}/{$base}");
+            // Always fetch rates from USD as base for accuracy, then convert to NGN
+            $response = Http::timeout(20)->get("{$this->baseUrl}/USD");
              
             if (!$response->successful()) {
                 Log::error("Failed to fetch rates for update: " . $response->status());
@@ -134,20 +163,33 @@ class CurrencyRateService
             }
 
             $rates = $response->json('rates');
-            $commonCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NGN', 'KES', 'ZAR', 'EGP', 'GHS', 'JPY', 'CNY'];
+            $commonCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NGN', 'KES', 'ZAR', 'EGP', 'GHS', 'JPY', 'CNY', 'AED', 'CHF', 'INR'];
+
+            // Get NGN rate from USD base (how many NGN per 1 USD)
+            $ngnPerUsd = $rates['NGN'] ?? 1600; // Fallback if NGN not in response
 
             foreach ($commonCurrencies as $code) {
                 if (!isset($rates[$code])) continue;
                 
-                $rate = $rates[$code];
+                $currencyPerUsd = $rates[$code];
+                
+                // Convert all rates to NGN base
+                // Formula: If 1 USD = X NGN, and 1 USD = Y EUR
+                // Then 1 EUR = X/Y NGN (how many NGN per 1 unit of that currency)
+                if ($base === 'NGN' && $currencyPerUsd > 0) {
+                    $rate = $ngnPerUsd / $currencyPerUsd;
+                } else {
+                    $rate = $currencyPerUsd;
+                }
                 
                 // Calculate buy/sell rates with 2% margin
-                // If base is USD, rate is how many X per 1 USD.
-                // We keep it simple: rate is the mid-market rate.
+                // rate is the mid-market rate
                 
-                $midRate = $rate;
-                $buyRate = $midRate * 0.98; // We buy lower
-                $sellRate = $midRate * 1.02; // We sell higher
+                $midRate = round($rate * 100) / 100; // Round to 2 decimals
+                $buyRate = round($midRate * 0.98 * 100) / 100; // We buy lower
+                $sellRate = round($midRate * 1.02 * 100) / 100; // We sell higher
+
+                Log::info("Updating currency {$code}: API Rate = {$currencyPerUsd}, Converted = {$midRate} NGN");
 
                 \App\Models\CurrencyRate::updateOrCreate(
                     ['code' => $code],
@@ -186,6 +228,9 @@ class CurrencyRateService
             'GHS' => 'Ghanaian Cedi',
             'JPY' => 'Japanese Yen',
             'CNY' => 'Chinese Yuan',
+            'AED' => 'UAE Dirham',
+            'CHF' => 'Swiss Franc',
+            'INR' => 'Indian Rupee',
         ];
         return $names[$code] ?? $code;
     }
@@ -193,7 +238,7 @@ class CurrencyRateService
     /**
      * Clear cached exchange rates
      */
-    public function clearCache($base = 'USD')
+    public function clearCache($base = 'NGN')
     {
         Cache::forget("exchange_rates_{$base}");
         Cache::forget("exchange_rates_common_{$base}");

@@ -20,18 +20,23 @@ interface ExchangeRateData {
   flag: string;
 }
 
-// Default currencies to always include
+// Default currencies to always include (with proper NGN conversion)
 const DEFAULT_CURRENCIES: ExchangeRateData[] = [
-  { id: '1', code: 'USD', name: 'US Dollar', rate: 1440, flag: '🇺🇸', buy_rate: 1430, sell_rate: 1450 },
+  { id: '1', code: 'USD', name: 'US Dollar', rate: 1421.41, flag: '🇺🇸', buy_rate: 1392.98, sell_rate: 1449.84 },
   { id: '2', code: 'NGN', name: 'Nigerian Naira', rate: 1, flag: '🇳🇬', buy_rate: 1, sell_rate: 1},
-  { id: '3', code: 'EUR', name: 'Euro', rate: 0.92, flag: '🇪🇺', buy_rate: 0.91, sell_rate: 0.93 },
-  { id: '4', code: 'GBP', name: 'British Pound', rate: 0.79, flag: '🇬🇧', buy_rate: 0.78, sell_rate: 0.80 },
-  { id: '5', code: 'AED', name: 'UAE Dirham', rate: 3.67, flag: '🇦🇪', buy_rate: 3.66, sell_rate: 3.68 },
-  { id: '6', code: 'CAD', name: 'Canadian Dollar', rate: 1.36, flag: '🇨🇦', buy_rate: 1.35, sell_rate: 1.37 },
-  { id: '7', code: 'AUD', name: 'Aus Dollar', rate: 1.53, flag: '🇦🇺', buy_rate: 1.52, sell_rate: 1.54 },
-  { id: '8', code: 'JPY', name: 'Yen', rate: 146.50, flag: '🇯🇵', buy_rate: 146.00, sell_rate: 147.00 },
-  { id: '9', code: 'CHF', name: 'Swiss Franc', rate: 0.87, flag: '🇨🇭', buy_rate: 0.86, sell_rate: 0.88 },
-  { id: '10', code: 'INR', name: 'Indian Rupee', rate: 83.50, flag: '🇮🇳', buy_rate: 83.00, sell_rate: 84.00 },
+  { id: '3', code: 'EUR', name: 'Euro', rate: 1660.76, flag: '🇪🇺', buy_rate: 1627.94, sell_rate: 1693.58 },
+  { id: '4', code: 'GBP', name: 'British Pound', rate: 1915.06, flag: '🇬🇧', buy_rate: 1876.75, sell_rate: 1953.37 },
+  { id: '5', code: 'AED', name: 'UAE Dirham', rate: 387.04, flag: '🇦🇪', buy_rate: 379.09, sell_rate: 394.98 },
+  { id: '6', code: 'CAD', name: 'Canadian Dollar', rate: 1027.50, flag: '🇨🇦', buy_rate: 1006.95, sell_rate: 1048.05 },
+  { id: '7', code: 'AUD', name: 'Australian Dollar', rate: 955.83, flag: '🇦🇺', buy_rate: 936.71, sell_rate: 974.94 },
+  { id: '8', code: 'JPY', name: 'Japanese Yen', rate: 9.07, flag: '🇯🇵', buy_rate: 8.89, sell_rate: 9.25 },
+  { id: '9', code: 'CHF', name: 'Swiss Franc', rate: 1783.50, flag: '🇨🇭', buy_rate: 1747.63, sell_rate: 1819.37 },
+  { id: '10', code: 'INR', name: 'Indian Rupee', rate: 15.81, flag: '🇮🇳', buy_rate: 15.49, sell_rate: 16.13 },
+  { id: '11', code: 'KES', name: 'Kenyan Shilling', rate: 11.02, flag: '🇰🇪', buy_rate: 10.80, sell_rate: 11.24 },
+  { id: '12', code: 'ZAR', name: 'South African Rand', rate: 86.41, flag: '🇿🇦', buy_rate: 84.68, sell_rate: 88.13 },
+  { id: '13', code: 'EGP', name: 'Egyptian Pound', rate: 30.08, flag: '🇪🇬', buy_rate: 29.48, sell_rate: 30.68 },
+  { id: '14', code: 'GHS', name: 'Ghanaian Cedi', rate: 133.02, flag: '🇬🇭', buy_rate: 130.36, sell_rate: 135.68 },
+  { id: '15', code: 'CNY', name: 'Chinese Yuan', rate: 202.98, flag: '🇨🇳', buy_rate: 198.92, sell_rate: 207.04 },
 ];
 
 interface CurrencyExchangePageProps {
@@ -48,62 +53,120 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
   const [isLoading, setIsLoading] = useState(true);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  /* ===============================
-     FETCH EXCHANGE RATES (SAFE)
-  =============================== */
   useEffect(() => {
     const fetchExchangeRates = async () => {
       try {
-        console.log('🔄 Fetching exchange rates from database...');
+        console.log('🔄 Fetching live exchange rates from API...');
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-        const response = await fetch(`${apiUrl}/exchange-rates`);
+        const url = `${apiUrl}/exchange-rates/live?base=NGN&t=${Date.now()}`; // Cache bust with timestamp
+        console.log('📍 Fetching from URL:', url);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          }
+        });
+        
         console.log('📡 API Response status:', response.status);
         
         if (!response.ok) {
           console.error('❌ API returned error:', response.status);
-          throw new Error('Fetch failed');
+          throw new Error(`Fetch failed with status ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('📊 Raw API response:', data);
+        console.log('📊 Live rates response:', data);
+        console.log('📊 Rates object:', data.rates);
 
         let rates: ExchangeRateData[] = [];
 
-        // Try multiple response formats
-        if (Array.isArray(data)) {
+        // Handle live rates response format: { success, base, rates, timestamp }
+        if (data.success && data.rates) {
+          // Convert from { code: rate } format to array format
+          if (typeof data.rates === 'object' && !Array.isArray(data.rates)) {
+            rates = Object.entries(data.rates).map(([code, rate]: [string, any]) => {
+              const numRate = typeof rate === 'number' ? rate : parseFloat(rate);
+              return {
+                id: code,
+                code: code,
+                name: code, // Will be updated below
+                rate: numRate,
+                flag: '🌐',
+                buy_rate: Math.round(numRate * 0.98 * 100) / 100,
+                sell_rate: Math.round(numRate * 1.02 * 100) / 100,
+              };
+            });
+            console.log('✅ Converted live rates from object format, total:', rates.length);
+            console.log('📋 Sample rates:', rates.slice(0, 3));
+          } else if (Array.isArray(data.rates)) {
+            rates = data.rates;
+            console.log('✅ Using live rates from array format');
+          }
+        } else if (Array.isArray(data)) {
           rates = data;
           console.log('✅ Found rates as direct array');
         } else if (Array.isArray(data.data)) {
           rates = data.data;
           console.log('✅ Found rates in data.data array');
-        } else if (Array.isArray(data.rates)) {
-          rates = data.rates;
-          console.log('✅ Found rates in data.rates array');
-        } else if (Array.isArray(data.exchange_rates)) {
-          rates = data.exchange_rates;
-          console.log('✅ Found rates in data.exchange_rates array');
         }
 
         console.log(`📈 Total rates found: ${rates.length}`);
         
         if (rates.length > 0) {
-          console.log('✨ Setting database rates:', rates);
-          // Merge database rates with defaults, prioritizing database rates
-          const mergedRates = [...rates];
-          const rateCodes = new Set(rates.map(r => r.code));
-          // Add defaults that aren't in database
-          DEFAULT_CURRENCIES.forEach(def => {
-            if (!rateCodes.has(def.code)) {
-              mergedRates.push(def);
-            }
-          });
-          setExchangeRates(mergedRates);
+          console.log('✨ Setting live rates:', rates);
+          // Merge live rates with defaults for currency names and additional metadata
+          const currencyNames: Record<string, string> = {
+            'USD': 'US Dollar',
+            'EUR': 'Euro',
+            'GBP': 'British Pound',
+            'CAD': 'Canadian Dollar',
+            'AUD': 'Australian Dollar',
+            'NGN': 'Nigerian Naira',
+            'KES': 'Kenyan Shilling',
+            'ZAR': 'South African Rand',
+            'EGP': 'Egyptian Pound',
+            'GHS': 'Ghanaian Cedi',
+            'JPY': 'Japanese Yen',
+            'CNY': 'Chinese Yuan',
+            'AED': 'UAE Dirham',
+            'CHF': 'Swiss Franc',
+            'INR': 'Indian Rupee',
+          };
+
+          const currencyFlags: Record<string, string> = {
+            'USD': '🇺🇸',
+            'EUR': '🇪🇺',
+            'GBP': '🇬🇧',
+            'CAD': '🇨🇦',
+            'AUD': '🇦🇺',
+            'NGN': '🇳🇬',
+            'KES': '🇰🇪',
+            'ZAR': '🇿🇦',
+            'EGP': '🇪🇬',
+            'GHS': '🇬🇭',
+            'JPY': '🇯🇵',
+            'CNY': '🇨🇳',
+            'AED': '🇦🇪',
+            'CHF': '🇨🇭',
+            'INR': '🇮🇳',
+          };
+
+          const enrichedRates = rates.map(rate => ({
+            ...rate,
+            name: currencyNames[rate.code] || rate.name || rate.code,
+            flag: currencyFlags[rate.code] || rate.flag || '🌐',
+          }));
+
+          console.log('✅ Final enriched rates to display:', enrichedRates);
+          setExchangeRates(enrichedRates);
         } else {
-          console.warn('⚠️ No rates found in any format, falling back to defaults');
+          console.warn('⚠️ No rates found, falling back to defaults');
           setExchangeRates(DEFAULT_CURRENCIES);
         }
       } catch (error) {
-        console.error('💥 Error fetching exchange rates:', error);
+        console.error('💥 Error fetching live exchange rates:', error);
         console.log('🔄 Using default currencies as fallback');
         setExchangeRates(DEFAULT_CURRENCIES);
       } finally {
@@ -209,22 +272,13 @@ export function CurrencyExchangePage({ onNavigate, isAuthenticated }: CurrencyEx
   })();
 
   const toNaira = (value?: number | string, code?: string) => {
+    // The API already returns rates in NGN, so just return the value as-is
     if (value === undefined || value === null) return NaN;
     const v = typeof value === 'string' ? parseFloat(value) : value;
     if (isNaN(v)) return NaN;
-
-    if (code === 'NGN') return 1;
-    if (code === 'USD') return !isNaN(nairaPerUSD) ? nairaPerUSD : v;
-
-    // Heuristic: treat large values or specific codes as units-per-USD
-    const unitsPerUsdCodes = ['JPY', 'INR'];
-    if (v > 10 || unitsPerUsdCodes.includes(code || '')) {
-      // v = units per USD -> 1 unit = (1/v) USD -> in NGN = (1/v) * nairaPerUSD
-      return (1 / v) * nairaPerUSD;
-    }
-
-    // Otherwise treat v as USD per unit -> in NGN = v * nairaPerUSD
-    return v * nairaPerUSD;
+    
+    // Rates from API are already in NGN, no conversion needed
+    return v;
   };
 
   if (isLoading) {

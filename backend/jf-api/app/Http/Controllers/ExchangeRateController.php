@@ -23,7 +23,7 @@ class ExchangeRateController extends Controller
     public function getLiveRates(Request $request): JsonResponse
     {
         try {
-            $base = $request->query('base', 'USD');
+            $base = $request->query('base', 'NGN');
 
             Log::info('ExchangeRateController@getLiveRates: Fetching live rates', ['base' => $base]);
 

@@ -13,7 +13,7 @@ class UpdateCurrencyRates extends Command
      *
      * @var string
      */
-    protected $signature = 'currency:update {base=USD}';
+    protected $signature = 'currency:update {base=NGN}';
 
     /**
      * The console command description.
