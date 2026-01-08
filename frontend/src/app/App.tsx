@@ -194,7 +194,7 @@ export default function App() {
             
             {/* Loading Text */}
             <div className="text-center">
-              <p className="text-xl font-semibold text-gray-800">JF TRAVELS</p>
+              <p className="text-xl font-semibold text-gray-800">JF TRAVELS AND EXCHANGE</p>
               <p className="text-sm text-gray-500 mt-1">Please wait while we prepare everything...</p>
             </div>
           </div>
