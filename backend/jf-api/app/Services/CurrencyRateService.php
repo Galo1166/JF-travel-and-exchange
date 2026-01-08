@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\Log;
 
 class CurrencyRateService
 {
-    protected $apiKey;
-    protected $baseUrl = 'https://v6.exchangerate-api.com/v6';
+    protected $baseUrl = 'https://open.er-api.com/v6/latest';
     protected $cacheExpiry = 3600; // 1 hour
 
     public function __construct()
     {
-        $this->apiKey = config('services.exchange_rate.key');
+        // No API key needed for this free endpoint
     }
 
     /**
@@ -26,10 +25,10 @@ class CurrencyRateService
         
         return Cache::remember($cacheKey, $this->cacheExpiry, function () use ($from, $to) {
             try {
-                $response = Http::timeout(10)->get("{$this->baseUrl}/{$this->apiKey}/latest/{$from}");
+                $response = Http::timeout(10)->get("{$this->baseUrl}/{$from}");
                 
                 if ($response->successful()) {
-                    $rates = $response->json('conversion_rates');
+                    $rates = $response->json('rates'); // Open ER API uses 'rates' key
                     return $rates[$to] ?? null;
                 }
                 
@@ -51,10 +50,10 @@ class CurrencyRateService
         
         return Cache::remember($cacheKey, $this->cacheExpiry, function () use ($base) {
             try {
-                $response = Http::timeout(10)->get("{$this->baseUrl}/{$this->apiKey}/latest/{$base}");
+                $response = Http::timeout(10)->get("{$this->baseUrl}/{$base}");
                 
                 if ($response->successful()) {
-                    return $response->json('conversion_rates');
+                    return $response->json('rates');
                 }
                 
                 Log::warning("Exchange Rate API returned unsuccessful status: {$response->status()}");
@@ -75,10 +74,10 @@ class CurrencyRateService
         
         return Cache::remember($cacheKey, $this->cacheExpiry, function () use ($base) {
             try {
-                $response = Http::timeout(10)->get("{$this->baseUrl}/{$this->apiKey}/latest/{$base}");
+                $response = Http::timeout(10)->get("{$this->baseUrl}/{$base}");
                 
                 if ($response->successful()) {
-                    $allRates = $response->json('conversion_rates');
+                    $allRates = $response->json('rates');
                     
                     // Return only common currencies
                     $commonCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'NGN', 'KES', 'ZAR', 'EGP'];
@@ -122,6 +121,76 @@ class CurrencyRateService
     }
 
     /**
+     * Update database rates from API
+     */
+    public function updateDatabaseRates($base = 'USD')
+    {
+        try {
+            $response = Http::timeout(20)->get("{$this->baseUrl}/{$base}");
+             
+            if (!$response->successful()) {
+                Log::error("Failed to fetch rates for update: " . $response->status());
+                return false;
+            }
+
+            $rates = $response->json('rates');
+            $commonCurrencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NGN', 'KES', 'ZAR', 'EGP', 'GHS', 'JPY', 'CNY'];
+
+            foreach ($commonCurrencies as $code) {
+                if (!isset($rates[$code])) continue;
+                
+                $rate = $rates[$code];
+                
+                // Calculate buy/sell rates with 2% margin
+                // If base is USD, rate is how many X per 1 USD.
+                // We keep it simple: rate is the mid-market rate.
+                
+                $midRate = $rate;
+                $buyRate = $midRate * 0.98; // We buy lower
+                $sellRate = $midRate * 1.02; // We sell higher
+
+                \App\Models\CurrencyRate::updateOrCreate(
+                    ['code' => $code],
+                    [
+                        'name' => $this->getCurrencyName($code), // Helper or simple map
+                        'rate' => $midRate,
+                        'buy_rate' => $buyRate,
+                        'sell_rate' => $sellRate,
+                        // 'flag' => ... (keep existing or null if new)
+                    ]
+                );
+            }
+            
+            $this->clearCache($base);
+            Log::info("Database currency rates updated successfully.");
+            return true;
+
+        } catch (\Exception $e) {
+            Log::error("Error updating database rates: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    private function getCurrencyName($code)
+    {
+        $names = [
+            'USD' => 'US Dollar',
+            'EUR' => 'Euro',
+            'GBP' => 'British Pound',
+            'CAD' => 'Canadian Dollar',
+            'AUD' => 'Australian Dollar',
+            'NGN' => 'Nigerian Naira',
+            'KES' => 'Kenyan Shilling',
+            'ZAR' => 'South African Rand',
+            'EGP' => 'Egyptian Pound',
+            'GHS' => 'Ghanaian Cedi',
+            'JPY' => 'Japanese Yen',
+            'CNY' => 'Chinese Yuan',
+        ];
+        return $names[$code] ?? $code;
+    }
+
+    /**
      * Clear cached exchange rates
      */
     public function clearCache($base = 'USD')
@@ -135,6 +204,6 @@ class CurrencyRateService
      */
     public function isConfigured()
     {
-        return !empty($this->apiKey);
+        return true; // Always configured since we use free API
     }
 }
