@@ -46,5 +46,8 @@ RUN php artisan config:cache && \
 # Expose port
 EXPOSE 8000
 
-# Start Laravel
-CMD ["sh", "-c", "php artisan storage:link --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# Create a startup script to run both web server and scheduler
+RUN echo '#!/bin/bash\nphp artisan storage:link --force || true\nphp artisan schedule:work &\nphp artisan serve --host=0.0.0.0 --port=${PORT:-8000}' > /app/start.sh && chmod +x /app/start.sh
+
+# Start Laravel with scheduler
+CMD ["/app/start.sh"]

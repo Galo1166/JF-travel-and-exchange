@@ -6,6 +6,7 @@ use App\Http\Controllers\TourController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ExchangeRateController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\FlightController;
 
 // Auth routes
 Route::prefix('auth')->group(function () {
@@ -72,3 +73,6 @@ Route::prefix('exchange-rates')->group(function () {
         Route::delete('{id}', [ExchangeRateController::class, 'destroy']);
     });
 });
+
+// Flight Search routes
+Route::get('/flights/search', [FlightController::class, 'search']);

@@ -186,7 +186,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
   const handleSaveRate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!rateFormData.code || !rateFormData.name || rateFormData.rate === undefined || rateFormData.buy_rate === undefined || rateFormData.sell_rate === undefined) {
       toast.error('Please fill in all required fields');
       return;
@@ -202,7 +202,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
         // Create new rate
         result = await createExchangeRate(rateFormData);
       }
-      
+
       if (result.success) {
         toast.success(editingRate ? 'Exchange rate updated successfully' : 'Exchange rate created successfully');
         handleCloseRateModal();
@@ -268,7 +268,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
 
   const handleSaveTour = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.destination || !formData.country || formData.price === undefined) {
       toast.error('Please fill in all required fields');
       return;
@@ -343,9 +343,13 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
   // Calculate stats from database
   const totalRevenue = databaseBookings.reduce((sum, booking) => {
     const price = typeof booking.total_price === 'string' ? parseFloat(booking.total_price) : booking.total_price;
-    return sum + (price || 0);
+    // Normalize price to USD first, then we can convert to selectedView
+    // If booking already has a currency, convert from that. Otherwise assume it's USD (legacy/fallback)
+    const bookingCurrency = booking.currency || 'USD';
+    const amountInUSD = convertCurrency(price || 0, bookingCurrency, 'USD');
+    return sum + amountInUSD;
   }, 0);
-  
+
   const totalBookings = databaseBookings.length;
   const activeTours = databaseTours.length;
   const completedBookings = databaseBookings.filter(b => b.status === 'completed').length;
@@ -355,7 +359,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
       {/* Header with Hero Image */}
       <div className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16 overflow-hidden">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center opacity-30"
           style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=400&fit=crop")'
@@ -363,7 +367,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/50" />
-        
+
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <Button
@@ -371,7 +375,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
             variant="ghost"
             className="mb-4 text-white hover:bg-white/10 gap-2 border border-white"
           >
-            <ChevronLeft/> Back to Website
+            <ChevronLeft /> Back to Website
           </Button>
           <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-gray-300">Manage tours, bookings, and exchange rates</p>
@@ -389,6 +393,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
             <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+            {/* totalRevenue is now in USD, so we convert from USD to selectedCurrency */}
             <p className="text-3xl font-bold text-gray-900">{formatCurrency(convertCurrency(totalRevenue, 'USD', selectedCurrency), selectedCurrency)}</p>
             <p className="text-xs text-gray-600 mt-2">From {totalBookings} bookings</p>
           </Card>
@@ -436,8 +441,8 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
             <Card className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 mb-6">
                 <h2 className="text-lg md:text-xl font-bold">Tour Management</h2>
-                <Button 
-                  onClick={() => handleOpenModal()} 
+                <Button
+                  onClick={() => handleOpenModal()}
                   className="gap-2 bg-blue-600 hover:bg-blue-700 w-full md:w-auto"
                   disabled={isLoading}
                 >
@@ -478,9 +483,9 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-1">
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="gap-1 hidden sm:flex text-xs px-2"
                                 onClick={() => handleOpenModal(tour)}
                                 disabled={isLoading}
@@ -488,18 +493,18 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                                 <Edit className="w-3 h-3" />
                                 Edit
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="gap-1 sm:hidden text-xs px-2"
                                 onClick={() => handleOpenModal(tour)}
                                 disabled={isLoading}
                               >
                                 <Edit className="w-3 h-3" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="gap-1 text-red-600 hover:text-red-700 text-xs px-2"
                                 onClick={() => tour.id && handleDeleteTour(tour.id)}
                                 disabled={isLoading}
@@ -559,58 +564,60 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                         {databaseBookings
                           .filter(b => bookingFilter === 'all' || b.status === bookingFilter)
                           .map((booking) => (
-                          <TableRow key={booking.id}>
-                            <TableCell className="font-medium text-xs md:text-sm">#{booking.id}</TableCell>
-                            <TableCell className="hidden sm:table-cell text-xs md:text-sm">
-                              <div>
-                                <p className="font-medium text-xs">{booking.user_name?.substring(0, 15)}</p>
-                                <p className="text-xs text-gray-500 hidden md:block">{booking.user_email?.substring(0, 20)}</p>
-                              </div>
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell text-xs md:text-sm">{booking.tour_name?.substring(0, 15)}</TableCell>
-                            <TableCell className="hidden lg:table-cell text-xs md:text-sm">{new Date(booking.travel_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</TableCell>
-                            <TableCell className="font-semibold text-xs md:text-sm">{formatCurrency(convertCurrency(typeof booking.total_price === 'string' ? parseFloat(booking.total_price) : (booking.total_price || 0), 'USD', selectedCurrency), selectedCurrency)}</TableCell>
-                            <TableCell>
-                              <Badge
-                                className={`text-white font-medium text-xs ${
-                                  booking.status === 'completed'
-                                    ? 'bg-blue-500 hover:bg-blue-600'
-                                    : booking.status === 'confirmed'
-                                    ? 'bg-green-500 hover:bg-green-600'
-                                    : booking.status === 'pending'
-                                    ? 'bg-orange-500 hover:bg-orange-600'
-                                    : booking.status === 'cancelled'
-                                    ? 'bg-red-500 hover:bg-red-600'
-                                    : 'bg-gray-500 hover:bg-gray-600'
-                                }`}
-                              >
-                                {booking.status?.substring(0, 3)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-1">
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="text-xs px-2"
-                                  onClick={() => setSelectedBooking(booking)}
+                            <TableRow key={booking.id}>
+                              <TableCell className="font-medium text-xs md:text-sm">#{booking.id}</TableCell>
+                              <TableCell className="hidden sm:table-cell text-xs md:text-sm">
+                                <div>
+                                  <p className="font-medium text-xs">{booking.user_name?.substring(0, 15)}</p>
+                                  <p className="text-xs text-gray-500 hidden md:block">{booking.user_email?.substring(0, 20)}</p>
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell text-xs md:text-sm">{booking.tour_name?.substring(0, 15)}</TableCell>
+                              <TableCell className="hidden lg:table-cell text-xs md:text-sm">{new Date(booking.travel_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</TableCell>
+                              <TableCell className="font-semibold text-xs md:text-sm">
+                                {/* Fix: Convert FROM the booking currency TO the selected currency */}
+                                {formatCurrency(convertCurrency(typeof booking.total_price === 'string' ? parseFloat(booking.total_price) : (booking.total_price || 0), booking.currency || 'USD', selectedCurrency), selectedCurrency)}
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`text-white font-medium text-xs ${booking.status === 'completed'
+                                      ? 'bg-blue-500 hover:bg-blue-600'
+                                      : booking.status === 'confirmed'
+                                        ? 'bg-green-500 hover:bg-green-600'
+                                        : booking.status === 'pending'
+                                          ? 'bg-orange-500 hover:bg-orange-600'
+                                          : booking.status === 'cancelled'
+                                            ? 'bg-red-500 hover:bg-red-600'
+                                            : 'bg-gray-500 hover:bg-gray-600'
+                                    }`}
                                 >
-                                  <FileText className="w-3 h-3" />
-                                </Button>
-                                <select
-                                  value={booking.status}
-                                  onChange={(e) => handleUpdateBookingStatus(booking.id!, e.target.value as any)}
-                                  className="px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="confirmed">Confirmed</option>
-                                  <option value="completed">Completed</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                  {booking.status?.substring(0, 3)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs px-2"
+                                    onClick={() => setSelectedBooking(booking)}
+                                  >
+                                    <FileText className="w-3 h-3" />
+                                  </Button>
+                                  <select
+                                    value={booking.status}
+                                    onChange={(e) => handleUpdateBookingStatus(booking.id!, e.target.value as any)}
+                                    className="px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 cursor-pointer"
+                                  >
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
                       </TableBody>
                     </Table>
                   </div>
@@ -624,8 +631,8 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                 <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                   <div className="p-4 md:p-6 flex justify-between items-center border-b sticky top-0 bg-white">
                     <h2 className="text-lg md:text-2xl font-bold">Booking Details</h2>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="ghost"
                       onClick={() => setSelectedBooking(null)}
                     >
@@ -640,11 +647,10 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-600">Status</p>
-                        <Badge className={`text-white font-medium text-xs ${
-                          selectedBooking.status === 'completed' ? 'bg-blue-500' :
-                          selectedBooking.status === 'confirmed' ? 'bg-green-500' :
-                          selectedBooking.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
-                        }`}>
+                        <Badge className={`text-white font-medium text-xs ${selectedBooking.status === 'completed' ? 'bg-blue-500' :
+                            selectedBooking.status === 'confirmed' ? 'bg-green-500' :
+                              selectedBooking.status === 'pending' ? 'bg-orange-500' : 'bg-red-500'
+                          }`}>
                           {selectedBooking.status}
                         </Badge>
                       </div>
@@ -674,7 +680,8 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-600">Total Amount</p>
-                        <p className="text-base md:text-lg font-bold text-blue-600">{formatCurrency(convertCurrency(typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price) : (selectedBooking.total_price || 0), 'USD', selectedCurrency), selectedCurrency)}</p>
+                        {/* Fix: Correct conversion in modal as well */}
+                        <p className="text-base md:text-lg font-bold text-blue-600">{formatCurrency(convertCurrency(typeof selectedBooking.total_price === 'string' ? parseFloat(selectedBooking.total_price) : (selectedBooking.total_price || 0), selectedBooking.currency || 'USD', selectedCurrency), selectedCurrency)}</p>
                       </div>
                       <div>
                         <p className="text-xs md:text-sm text-gray-600">Payment Method</p>
@@ -728,7 +735,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                             </TableCell>
                             <TableCell className="hidden md:table-cell font-semibold text-xs md:text-sm">{formatCurrency(convertCurrency(user.wallet_balance || 0, 'USD', selectedCurrency), selectedCurrency)}</TableCell>
                             <TableCell className="hidden lg:table-cell text-xs md:text-sm">{user.preferred_currency}</TableCell>
-                            <TableCell className="hidden md:table-cell text-xs">{new Date(user.created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</TableCell>
+                            <TableCell className="hidden md:table-cell text-xs">{new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -785,28 +792,27 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                         {allTransactions
                           .filter(t => transactionFilter === 'all' || t.type === transactionFilter)
                           .map((transaction) => (
-                          <TableRow key={transaction.id}>
-                            <TableCell className="font-medium text-xs md:text-sm">#{transaction.id}</TableCell>
-                            <TableCell>
-                              <Badge className={`text-xs ${
-                                transaction.type === 'booking' ? 'bg-blue-500' :
-                                transaction.type === 'deposit' ? 'bg-green-500' :
-                                'bg-purple-500'
-                              }`}>
-                                {transaction.type?.substring(0, 3)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-xs md:text-sm break-all">{transaction.user_email?.substring(0, 18)}</TableCell>
-                            <TableCell className="font-semibold text-xs md:text-sm">${typeof transaction.amount === 'string' ? parseFloat(transaction.amount).toFixed(0) : transaction.amount?.toFixed(0)}</TableCell>
-                            <TableCell className="hidden md:table-cell text-xs md:text-sm">{transaction.currency}</TableCell>
-                            <TableCell className="hidden lg:table-cell text-xs md:text-sm">{transaction.description?.substring(0, 15)}</TableCell>
-                            <TableCell>
-                              <Badge className={`text-xs ${transaction.status === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
-                                {transaction.status?.substring(0, 3)}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                            <TableRow key={transaction.id}>
+                              <TableCell className="font-medium text-xs md:text-sm">#{transaction.id}</TableCell>
+                              <TableCell>
+                                <Badge className={`text-xs ${transaction.type === 'booking' ? 'bg-blue-500' :
+                                    transaction.type === 'deposit' ? 'bg-green-500' :
+                                      'bg-purple-500'
+                                  }`}>
+                                  {transaction.type?.substring(0, 3)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell text-xs md:text-sm break-all">{transaction.user_email?.substring(0, 18)}</TableCell>
+                              <TableCell className="font-semibold text-xs md:text-sm">${typeof transaction.amount === 'string' ? parseFloat(transaction.amount).toFixed(0) : transaction.amount?.toFixed(0)}</TableCell>
+                              <TableCell className="hidden md:table-cell text-xs md:text-sm">{transaction.currency}</TableCell>
+                              <TableCell className="hidden lg:table-cell text-xs md:text-sm">{transaction.description?.substring(0, 15)}</TableCell>
+                              <TableCell>
+                                <Badge className={`text-xs ${transaction.status === 'success' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
+                                  {transaction.status?.substring(0, 3)}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
                       </TableBody>
                     </Table>
                   </div>
@@ -823,7 +829,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                   <h2 className="text-xl font-bold">Currency Exchange Rates ({databaseRates.length})</h2>
                   <p className="text-sm text-gray-600 mt-1">Manage and update exchange rates</p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => handleOpenRateModal()}
                   className="bg-blue-600 hover:bg-blue-700 gap-2"
                 >
@@ -860,8 +866,8 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                             <TableCell className="hidden lg:table-cell text-xs md:text-sm">{typeof rate.sell_rate === 'string' ? parseFloat(rate.sell_rate).toFixed(2) : rate.sell_rate?.toFixed(2)}</TableCell>
                             <TableCell>
                               <div className="flex gap-1">
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   variant="outline"
                                   className="text-xs px-2"
                                   onClick={() => handleOpenRateModal(rate)}
@@ -869,9 +875,9 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
                                 >
                                   <Edit className="w-3 h-3" />
                                 </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
+                                <Button
+                                  size="sm"
+                                  variant="outline"
                                   className="text-red-600 hover:bg-red-50 text-xs px-2"
                                   onClick={() => handleDeleteRate(rate.id!, rate.code)}
                                   disabled={isLoading}
@@ -900,7 +906,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
               <h2 className="text-lg md:text-2xl font-bold">
                 {editingRate ? 'Edit Exchange Rate' : 'Add Exchange Rate'}
               </h2>
-              <button 
+              <button
                 onClick={handleCloseRateModal}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -1013,7 +1019,7 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
               <h2 className="text-lg md:text-2xl font-bold">
                 {editingTour ? 'Edit Tour' : 'Create New Tour'}
               </h2>
-              <button 
+              <button
                 onClick={handleCloseModal}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -1183,15 +1189,15 @@ export function AdminDashboard({ onNavigate, selectedCurrency }: AdminDashboardP
               </div>
 
               <div className="flex gap-3 justify-end pt-4 border-t">
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   variant="outline"
                   onClick={handleCloseModal}
                   disabled={isLoading}
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700"
                   disabled={isLoading}

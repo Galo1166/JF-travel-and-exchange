@@ -352,7 +352,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                       <Input
                         id="fullName"
                         type="text"
-                        placeholder="John Doe"
+                        placeholder="Jafar"
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                         required
@@ -364,7 +364,7 @@ export function BookingPage({ tourId, onNavigate, isAuthenticated, selectedCurre
                       <Input
                         id="email"
                         type="email"
-                        placeholder="john@example.com"
+                        placeholder="You@jftravelsxchange.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required

@@ -39,6 +39,7 @@ export function Navbar({
     { name: 'About', id: 'about' },
     { name: 'Destinations', id: 'destinations' },
     { name: 'Tours', id: 'tours' },
+    { name: 'Book Flight', id: 'book-flight' },
     { name: 'Currency Exchange', id: 'currency' },
   ];
 
@@ -72,8 +73,8 @@ export function Navbar({
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
                 className={`transition-colors ${currentPage === item.id
-                    ? 'text-blue-600'
-                    : 'text-gray-700 hover:text-blue-600'
+                  ? 'text-blue-600'
+                  : 'text-gray-700 hover:text-blue-600'
                   }`}
               >
                 {item.name}
@@ -195,8 +196,8 @@ export function Navbar({
                     setMobileMenuOpen(false);
                   }}
                   className={`text-left px-4 py-2 rounded-lg transition-colors ${currentPage === item.id
-                      ? 'bg-blue-50 text-blue-600'
-                      : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   {item.name}

@@ -243,3 +243,126 @@ export async function getAllUsers(token?: string): Promise<{
     };
   }
 }
+
+/**
+ * Create a flight booking
+ */
+export async function createFlightBooking(bookingData: {
+  user_id: number;
+  user_email: string;
+  passenger_name: string;
+  email: string;
+  phone_number: string;
+  flight_from: string;
+  flight_to: string;
+  departure_date: string;
+  airline: string;
+  number_of_passengers: number;
+  total_price: number;
+  currency: string;
+  flight_class: string;
+  status: string;
+  payment_method?: string;
+}, token: string): Promise<{
+  success: boolean;
+  booking?: any;
+  error?: string;
+}> {
+  try {
+    // Get today's date for booking_date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Parse departure_date to ensure YYYY-MM-DD format
+    let travelDate = bookingData.departure_date;
+    try {
+      if (travelDate) {
+        // If it already matches YYYY-MM-DD format, use it as is
+        if (travelDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          // Already in correct format
+        } else if (travelDate.includes('T')) {
+          // ISO datetime format (2024-03-15T10:30:00), extract just date
+          travelDate = travelDate.split('T')[0];
+        } else {
+          // Try parsing as date and convert to YYYY-MM-DD
+          const dateObj = new Date(travelDate);
+          if (isNaN(dateObj.getTime())) {
+            console.warn('Invalid date format:', travelDate, 'using today instead');
+            travelDate = today;
+          } else {
+            travelDate = dateObj.toISOString().split('T')[0];
+          }
+        }
+      }
+    } catch (dateError) {
+      console.warn('Date parsing error:', dateError, 'using today:', today);
+      travelDate = today;
+    }
+
+    console.log('Booking payload:', {
+      user_id: bookingData.user_id,
+      booking_date: today,
+      travel_date: travelDate,
+      full_name: bookingData.passenger_name,
+      email: bookingData.email,
+      phone: bookingData.phone_number,
+    });
+    
+    const response = await fetch(`${API_BASE_URL}/bookings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        user_id: bookingData.user_id,
+        tour_id: null, // Explicitly set to null for flight bookings (not sending 0)
+        tour_name: `${bookingData.flight_from} → ${bookingData.flight_to}`, // Flight route as tour_name
+        booking_date: today, // Today's date in YYYY-MM-DD
+        travel_date: travelDate, // Flight departure date in YYYY-MM-DD
+        full_name: bookingData.passenger_name, // Passenger name
+        email: bookingData.email.toLowerCase().trim(), // Passenger email - ensure it's valid
+        phone: bookingData.phone_number, // Passenger phone
+        number_of_travelers: bookingData.number_of_passengers,
+        total_price: bookingData.total_price,
+        payment_method: 'bank', // Use 'bank' instead of 'bank_transfer'
+        status: bookingData.status || 'pending',
+        // Flight-specific fields
+        booking_type: 'flight',
+        airline: bookingData.airline,
+        flight_class: bookingData.flight_class,
+        currency: bookingData.currency,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Booking creation failed:', response.status, errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        console.error('Error details:', errorData);
+        return {
+          success: false,
+          error: `Failed to create booking: ${errorData.message || response.statusText}`,
+        };
+      } catch {
+        return {
+          success: false,
+          error: `Failed to create booking: ${response.statusText}`,
+        };
+      }
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      booking: data.booking || data,
+    };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('Booking creation error:', errorMsg);
+    return {
+      success: false,
+      error: errorMsg || 'Failed to create flight booking',
+    };
+  }
+}

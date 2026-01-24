@@ -16,29 +16,37 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { UserDashboard } from './pages/UserDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { BookFlightPage } from './pages/BookFlightPage';
+import { FlightPaymentPage } from './pages/FlightPaymentPage';
 import { auth } from '../config/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 
-type Page = 
-  | 'home' 
-  | 'about' 
-  | 'destinations' 
-  | 'tours' 
-  | 'tour-details' 
-  | 'booking' 
+type Page =
+  | 'home'
+  | 'about'
+  | 'destinations'
+  | 'tours'
+  | 'tour-details'
+  | 'booking'
   | 'booking-confirmation'
   | 'currency'
   | 'login'
   | 'register'
   | 'forgot-password'
   | 'dashboard'
-  | 'admin';
+  | 'admin'
+  | 'book-flight'
+  | 'flight-payment';
 
 interface PageData {
   tourId?: string;
   filterCountry?: string;
   booking?: any;
   tour?: any;
+  flight?: any;
+  passengers?: number;
+  flightClass?: string;
+  totalAmount?: number;
 }
 
 export default function App() {
@@ -79,7 +87,7 @@ export default function App() {
 
   const handleLogout = () => {
     // sign out from Firebase as well
-    signOut(auth).catch(() => {});
+    signOut(auth).catch(() => { });
     setIsAuthenticated(false);
     setCurrentPage('home');
     // Clear page state on logout
@@ -92,7 +100,7 @@ export default function App() {
       if (user) {
         setIsAuthenticated(true);
         setUserEmail(user.email);
-        
+
         // Check if user is admin
         try {
           const apiBaseUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000/api';
@@ -140,9 +148,9 @@ export default function App() {
         );
       case 'booking':
         return pageData.tourId ? (
-          <BookingPage 
-            tourId={pageData.tourId} 
-            onNavigate={handleNavigate} 
+          <BookingPage
+            tourId={pageData.tourId}
+            onNavigate={handleNavigate}
             isAuthenticated={isAuthenticated}
             selectedCurrency={selectedCurrency}
           />
@@ -152,8 +160,8 @@ export default function App() {
       case 'booking-confirmation':
         return (
           <ErrorBoundary>
-            <BookingConfirmationPage 
-              bookingData={pageData} 
+            <BookingConfirmationPage
+              bookingData={pageData}
               onNavigate={handleNavigate}
               selectedCurrency={selectedCurrency}
             />
@@ -175,6 +183,25 @@ export default function App() {
         );
       case 'admin':
         return <AdminDashboard onNavigate={handleNavigate} selectedCurrency={selectedCurrency} />;
+      case 'book-flight':
+        return (
+          <BookFlightPage
+            onNavigate={handleNavigate}
+            selectedCurrency={selectedCurrency}
+            isAuthenticated={isAuthenticated}
+          />
+        );
+      case 'flight-payment':
+        return (
+          <FlightPaymentPage
+            flight={pageData.flight}
+            passengers={pageData.passengers}
+            flightClass={pageData.flightClass}
+            totalAmount={pageData.totalAmount}
+            onNavigate={handleNavigate}
+            onCurrencySelect={handleCurrencyChange}
+          />
+        );
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }
@@ -191,7 +218,7 @@ export default function App() {
               <div className="absolute inset-0 border-4 border-gray-200 rounded-full" />
               <div className="absolute inset-0 border-4 border-transparent border-t-blue-600 border-r-blue-600 rounded-full animate-spin" />
             </div>
-            
+
             {/* Loading Text */}
             <div className="text-center">
               <p className="text-xl font-semibold text-gray-800">JF TRAVELS AND EXCHANGE</p>
@@ -214,13 +241,13 @@ export default function App() {
               onCurrencyChange={handleCurrencyChange}
             />
           )}
-          
+
           <main className="flex-1">
             {renderPage()}
           </main>
-          
+
           {showLayout && <Footer onNavigate={handleNavigate} />}
-          
+
           <Toaster position="top-right" />
         </>
       )}

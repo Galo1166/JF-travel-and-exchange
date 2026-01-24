@@ -23,6 +23,12 @@ class TourBooking extends Model
         'email',
         'phone',
         'payment_method',
+        'booking_type',    // 'tour' or 'flight'
+        'tour_name',       // Can be tour name or flight route
+        'airline',         // Flight-specific
+        'flight_class',    // Flight-specific: economy, business, first
+        'flight_from',     // Flight-specific
+        'flight_to',       // Flight-specific
     ];
 
     protected $casts = [

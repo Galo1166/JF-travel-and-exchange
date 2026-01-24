@@ -78,12 +78,12 @@ export function HomePage({ onNavigate, selectedCurrency = 'USD' }: HomePageProps
               Book a Tour <ArrowRight className="w-5 h-5" />
             </Button>
             <Button
-              onClick={() => onNavigate('destinations')}
+              onClick={() => onNavigate('book-flight')}
               size="lg"
               variant="outline"
               className="bg-transparent border-2 border-white text-white hover:bg-white/10"
             >
-              View Destinations
+              Book Flight
             </Button>
           </div>
         </div>

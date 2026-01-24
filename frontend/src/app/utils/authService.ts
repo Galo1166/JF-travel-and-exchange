@@ -3,7 +3,9 @@
  * Handles user authentication and role management
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = `${BASE_URL}/api`;
+
 
 /**
  * Check if user is admin by email
@@ -68,7 +70,7 @@ export async function saveUserProfile(
     }
 
     console.log('saveUserProfile: Saving user', { name, email, firebaseUid });
-    
+
     const response = await fetch(`${API_BASE_URL}/auth/firebase-signup`, {
       method: 'POST',
       headers: {

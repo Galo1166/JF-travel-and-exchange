@@ -17,14 +17,14 @@ interface UserDashboardProps {
   onCurrencyChange?: (currency: string) => void;
 }
 
-export function UserDashboard({ 
-  onNavigate, 
+export function UserDashboard({
+  onNavigate,
   selectedCurrency = 'USD',
-  onCurrencyChange 
+  onCurrencyChange
 }: UserDashboardProps) {
   const { user } = useAuth();
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
-  
+
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
@@ -62,10 +62,10 @@ export function UserDashboard({
 
     try {
       setSavingProfile(true);
-      
+
       // Get Firebase ID token
       const token = await user.getIdToken();
-      
+
       const result = await updateUserProfile(token, {
         phone_number: phoneNumber || undefined,
         preferred_currency: preferredCurrency || undefined,
@@ -131,14 +131,24 @@ export function UserDashboard({
             <Card className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">My Bookings</h2>
-                <Button
-                  onClick={() => onNavigate('tours')}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Book New Tour
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => onNavigate('book-flight')}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Book Flight
+                  </Button>
+                  <Button
+                    onClick={() => onNavigate('tours')}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Book New Tour
+                  </Button>
+                </div>
               </div>
 
               {loadingBookings ? (
@@ -154,28 +164,31 @@ export function UserDashboard({
                     >
                       <div className="mb-4 md:mb-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold">{booking.tour_name}</h3>
+                          <h3 className="font-semibold">
+                            {booking.tour_name || `${booking.flight_from} → ${booking.flight_to}`}
+                          </h3>
                           <Badge
-                            className={`text-white font-medium ${
-                              booking.status === 'confirmed'
+                            className={`text-white font-medium ${booking.status === 'confirmed'
                                 ? 'bg-green-500 hover:bg-green-600'
                                 : booking.status === 'pending'
-                                ? 'bg-orange-500 hover:bg-orange-600'
-                                : booking.status === 'complete'
-                                ? 'bg-blue-500 hover:bg-blue-600'
-                                : booking.status === 'cancelled'
-                                ? 'bg-red-500 hover:bg-red-600'
-                                : 'bg-gray-500 hover:bg-gray-600'
-                            }`}
+                                  ? 'bg-orange-500 hover:bg-orange-600'
+                                  : booking.status === 'complete'
+                                    ? 'bg-blue-500 hover:bg-blue-600'
+                                    : booking.status === 'cancelled'
+                                      ? 'bg-red-500 hover:bg-red-600'
+                                      : 'bg-gray-500 hover:bg-gray-600'
+                              }`}
                           >
                             {booking.status}
                           </Badge>
                         </div>
                         <div className="text-sm text-gray-600 space-y-1">
                           <p>Booking ID: #{booking.id}</p>
-                          <p>Travel Date: {new Date(booking.travel_date).toLocaleDateString()}</p>
-                          <p>Travelers: {booking.number_of_travelers} person{booking.number_of_travelers > 1 ? 's' : ''}</p>
+                          <p>Travel Date: {new Date(booking.travel_date || booking.departure_date).toLocaleDateString()}</p>
+                          <p>Travelers: {booking.number_of_travelers || booking.number_of_passengers} person{(booking.number_of_travelers || booking.number_of_passengers) > 1 ? 's' : ''}</p>
                           <p>Booked on: {new Date(booking.created_at).toLocaleDateString()}</p>
+                          {booking.airline && <p>Airline: {booking.airline}</p>}
+                          {booking.flight_class && <p>Class: {booking.flight_class}</p>}
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
@@ -183,7 +196,7 @@ export function UserDashboard({
                           {formatCurrency(
                             convertCurrency(
                               Number(String(booking.total_price).replace(/[^0-9.-]+/g, '')) || 0,
-                              'USD',
+                              booking.currency || 'USD',
                               selectedCurrency
                             ),
                             selectedCurrency
@@ -215,7 +228,7 @@ export function UserDashboard({
           <TabsContent value="transactions" className="mt-6">
             <Card className="p-6">
               <h2 className="text-xl font-bold mb-6">Booking Summary</h2>
-              
+
               {bookings.length > 0 ? (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -227,7 +240,13 @@ export function UserDashboard({
                             bookings.reduce((sum, b) => {
                               const raw = b?.total_price ?? 0;
                               const num = Number(String(raw).replace(/[^0-9.-]+/g, ''));
-                              return sum + (Number.isFinite(num) ? num : 0);
+                              // Normalize to USD before summing
+                              const amountInUSD = convertCurrency(
+                                Number.isFinite(num) ? num : 0,
+                                b.currency || 'USD',
+                                'USD'
+                              );
+                              return sum + amountInUSD;
                             }, 0),
                             'USD',
                             selectedCurrency
@@ -276,17 +295,16 @@ export function UserDashboard({
                               )}
                             </p>
                             <Badge
-                              className={`text-white font-medium text-xs ${
-                                booking.status === 'confirmed'
+                              className={`text-white font-medium text-xs ${booking.status === 'confirmed'
                                   ? 'bg-green-500 hover:bg-green-600'
                                   : booking.status === 'pending'
-                                  ? 'bg-orange-500 hover:bg-orange-600'
-                                  : booking.status === 'complete'
-                                  ? 'bg-blue-500 hover:bg-blue-600'
-                                  : booking.status === 'cancelled'
-                                  ? 'bg-red-500 hover:bg-red-600'
-                                  : 'bg-gray-500 hover:bg-gray-600'
-                              }`}
+                                    ? 'bg-orange-500 hover:bg-orange-600'
+                                    : booking.status === 'complete'
+                                      ? 'bg-blue-500 hover:bg-blue-600'
+                                      : booking.status === 'cancelled'
+                                        ? 'bg-red-500 hover:bg-red-600'
+                                        : 'bg-gray-500 hover:bg-gray-600'
+                                }`}
                             >
                               {booking.status}
                             </Badge>
@@ -334,7 +352,7 @@ export function UserDashboard({
                     <label className="block text-sm font-medium mb-2">Email Address</label>
                     <p className="p-3 bg-gray-50 rounded-lg">{user?.email || 'N/A'}</p>
                   </div>
-                  
+
                   {editingProfile ? (
                     <>
                       <div>

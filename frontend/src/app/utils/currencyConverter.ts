@@ -57,6 +57,10 @@ export async function convertCurrencyLive(
 
   // If we have live rates, use them
   if (rates && toCurrency in rates) {
+    // Divide by rate for NGN to other currencies, multiply for others
+    if (fromCurrency === 'NGN') {
+      return Math.round((amount / rates[toCurrency]) * 100) / 100;
+    }
     return Math.round(amount * rates[toCurrency] * 100) / 100;
   }
 

@@ -128,7 +128,7 @@ class BookingController extends Controller
 
             $validated = $request->validate([
                 'user_id' => 'required|integer|exists:users,id',
-                'tour_id' => 'required|integer|exists:tours,id',
+                'tour_id' => 'nullable|integer|exists:tours,id', // Nullable to support flight bookings
                 'booking_date' => 'required|date',
                 'travel_date' => 'required|date|after_or_equal:booking_date',
                 'number_of_travelers' => 'required|integer|min:1',
@@ -139,10 +139,21 @@ class BookingController extends Controller
                 'email' => 'required|email|max:255',
                 'phone' => 'required|string|max:20',
                 'payment_method' => 'required|string|in:paystack,paypal,bank',
+                'booking_type' => 'nullable|string|in:tour,flight', // Support flight bookings
+                'airline' => 'nullable|string|max:255', // Flight-specific field
+                'flight_class' => 'nullable|string|in:economy,business,first', // Flight-specific field
+                'flight_from' => 'nullable|string|max:10', // Flight-specific field
+                'flight_to' => 'nullable|string|max:10', // Flight-specific field
+                'tour_name' => 'nullable|string|max:255', // Can be flight route
             ]);
 
             // Set default status if not provided
             $validated['status'] = $validated['status'] ?? 'pending';
+            
+            // For flight bookings, set tour_id to null if not provided
+            if (empty($validated['tour_id'])) {
+                $validated['tour_id'] = null;
+            }
 
             $booking = TourBooking::create($validated);
 
