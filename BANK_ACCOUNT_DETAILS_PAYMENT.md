@@ -93,7 +93,7 @@ Once transfer is complete:
 
 ### Q: Which account should I use?
 **A:** Use the account matching your payment currency:
-- Paying in NGN? → Use Zenith Bank
+- Paying in NGN? → Use GT Bank
 - Paying in USD? → Use Access Bank
 - Paying in EUR? → Use GTBank
 
@@ -178,7 +178,7 @@ Provide:
 **Business Name:** JF Travel & Tours Limited
 
 **Authorized Banks:**
-1. Zenith Bank (NGN Account)
+1. GT Bank (NGN Account)
 2. Access Bank (USD Account)
 3. Guaranty Trust Bank (EUR Account)
 
@@ -193,7 +193,7 @@ Provide:
 ### For Customers Outside Nigeria:
 
 **Using SWIFT Codes:**
-1. Zenith Bank SWIFT: **ZEIBNGLA**
+1. GT Bank SWIFT: **GTBNGLA**
 2. Access Bank SWIFT: **ABNGNGLA**
 3. GTBank SWIFT: **GTBINGLA**
 
