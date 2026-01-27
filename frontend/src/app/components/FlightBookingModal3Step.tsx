@@ -5,157 +5,157 @@ import { convertCurrencyLive } from '../utils/currencyConverter';
 import '../../styles/FlightBooking3Step.css';
 
 interface FlightBookingModalProps {
-  flight: FlightOffer;
-  passengers: number;
-  selectedCurrency: string;
-  onClose: () => void;
-  onConfirm: (bookingDetails: BookingDetails) => void;
+    flight: FlightOffer;
+    passengers: number;
+    selectedCurrency: string;
+    onClose: () => void;
+    onConfirm: (bookingDetails: BookingDetails) => void;
 }
 
 export interface BookingDetails {
-  flight: FlightOffer;
-  passengers: number;
-  flightClass: 'economy' | 'business' | 'first';
-  totalAmount: number;
-  convertedAmount: number;
-  currency: string;
-  paymentMethod: 'bank-transfer';
-  bankAccount: BankAccount;
-  transferConfirmed: boolean;
-  passengerName: string;
-  email: string;
-  phoneNumber: string;
+    flight: FlightOffer;
+    passengers: number;
+    flightClass: 'economy' | 'business' | 'first';
+    totalAmount: number;
+    convertedAmount: number;
+    currency: string;
+    paymentMethod: 'bank-transfer';
+    bankAccount: BankAccount;
+    transferConfirmed: boolean;
+    passengerName: string;
+    email: string;
+    phoneNumber: string;
 }
 
 interface BankAccount {
-  bank: string;
-  accountName: string;
-  accountNumber: string;
-  currency: string;
+    bank: string;
+    accountName: string;
+    accountNumber: string;
+    currency: string;
 }
 
 const BANK_ACCOUNTS: Record<string, BankAccount> = {
-  NGN: { bank: 'Zenith Bank', accountName: 'JF Travel & Tours Ltd', accountNumber: '1234567890', currency: 'NGN' },
-  USD: { bank: 'Access Bank', accountName: 'JF Travel & Tours Ltd', accountNumber: '9876543210', currency: 'USD' },
-  EUR: { bank: 'GTBank', accountName: 'JF Travel & Tours Ltd', accountNumber: '5555666677', currency: 'EUR' }
+    NGN: { bank: 'GT Bank', accountName: 'JAFAR GWAMMAJA INVESTMENT LIMITED', accountNumber: '0918510388', currency: 'NGN' },
+    USD: { bank: 'Access Bank', accountName: 'JF Travel & Tours Ltd', accountNumber: '9876543210', currency: 'USD' },
+    EUR: { bank: 'GTBank', accountName: 'JF Travel & Tours Ltd', accountNumber: '5555666677', currency: 'EUR' }
 };
 
 const FLIGHT_CLASSES = [
-  { id: 'economy', name: 'Economy', priceMultiplier: 1, benefits: ['Basic seating', '1 checked bag', 'Standard meals'] },
-  { id: 'business', name: 'Business', priceMultiplier: 2.5, benefits: ['Priority seating', '2 checked bags', 'Premium meals', 'Extra legroom'] },
-  { id: 'first', name: 'First Class', priceMultiplier: 4, benefits: ['Luxury seating', 'Unlimited baggage', 'Gourmet meals', 'Lounge access', 'Personal service'] }
+    { id: 'economy', name: 'Economy', priceMultiplier: 1, benefits: ['Basic seating', '1 checked bag', 'Standard meals'] },
+    { id: 'business', name: 'Business', priceMultiplier: 2.5, benefits: ['Priority seating', '2 checked bags', 'Premium meals', 'Extra legroom'] },
+    { id: 'first', name: 'First Class', priceMultiplier: 4, benefits: ['Luxury seating', 'Unlimited baggage', 'Gourmet meals', 'Lounge access', 'Personal service'] }
 ];
 
 export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
-  flight,
-  passengers,
-  selectedCurrency,
-  onClose,
-  onConfirm
+    flight,
+    passengers,
+    selectedCurrency,
+    onClose,
+    onConfirm
 }) => {
-  const [step, setStep] = useState(1);
-  const [selectedClass, setSelectedClass] = useState<'economy' | 'business' | 'first'>('economy');
-  const [paymentCurrency, setPaymentCurrency] = useState(selectedCurrency);
-  const [convertedAmount, setConvertedAmount] = useState(0);
-  const [copiedAccount, setCopiedAccount] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [transferConfirmed, setTransferConfirmed] = useState(false);
-  const [bookingCompleted, setBookingCompleted] = useState(false);
+    const [step, setStep] = useState(1);
+    const [selectedClass, setSelectedClass] = useState<'economy' | 'business' | 'first'>('economy');
+    const [paymentCurrency, setPaymentCurrency] = useState(selectedCurrency);
+    const [convertedAmount, setConvertedAmount] = useState(0);
+    const [copiedAccount, setCopiedAccount] = useState(false);
+    const [isConfirming, setIsConfirming] = useState(false);
+    const [transferConfirmed, setTransferConfirmed] = useState(false);
+    const [bookingCompleted, setBookingCompleted] = useState(false);
 
-  // Passenger details
-  const [passengerName, setPassengerName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+    // Passenger details
+    const [passengerName, setPassengerName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
 
-  const [loading, setLoading] = useState(false);
-  const [allCurrencyPrices, setAllCurrencyPrices] = useState({ NGN: 0, USD: 0, EUR: 0 });
+    const [loading, setLoading] = useState(false);
+    const [allCurrencyPrices, setAllCurrencyPrices] = useState({ NGN: 0, USD: 0, EUR: 0 });
 
-  const classInfo = FLIGHT_CLASSES.find(c => c.id === selectedClass)!;
+    const classInfo = FLIGHT_CLASSES.find(c => c.id === selectedClass)!;
 
-  const basePriceNGN = flight.price;
-  const totalAmountNGN = basePriceNGN * classInfo.priceMultiplier;
+    const basePriceNGN = flight.price;
+    const totalAmountNGN = basePriceNGN * classInfo.priceMultiplier;
 
-  const bankAccount = BANK_ACCOUNTS[paymentCurrency] || BANK_ACCOUNTS.NGN;
+    const bankAccount = BANK_ACCOUNTS[paymentCurrency] || BANK_ACCOUNTS.NGN;
 
-  useEffect(() => {
-    const fetchConversion = async () => {
-      setLoading(true);
-      try {
-        const usd = await convertCurrencyLive(totalAmountNGN, 'NGN', 'USD');
-        const eur = await convertCurrencyLive(totalAmountNGN, 'NGN', 'EUR');
+    useEffect(() => {
+        const fetchConversion = async () => {
+            setLoading(true);
+            try {
+                const usd = await convertCurrencyLive(totalAmountNGN, 'NGN', 'USD');
+                const eur = await convertCurrencyLive(totalAmountNGN, 'NGN', 'EUR');
 
-        setAllCurrencyPrices({ NGN: totalAmountNGN, USD: usd, EUR: eur });
-        setConvertedAmount(paymentCurrency === 'USD' ? usd : paymentCurrency === 'EUR' ? eur : totalAmountNGN);
-      } catch {
-        const usd = totalAmountNGN / 1420;
-        const eur = usd / 1.08;
-        setAllCurrencyPrices({ NGN: totalAmountNGN, USD: usd, EUR: eur });
-        setConvertedAmount(paymentCurrency === 'USD' ? usd : paymentCurrency === 'EUR' ? eur : totalAmountNGN);
-      } finally {
-        setLoading(false);
-      }
+                setAllCurrencyPrices({ NGN: totalAmountNGN, USD: usd, EUR: eur });
+                setConvertedAmount(paymentCurrency === 'USD' ? usd : paymentCurrency === 'EUR' ? eur : totalAmountNGN);
+            } catch {
+                const usd = totalAmountNGN / 1420;
+                const eur = usd / 1.08;
+                setAllCurrencyPrices({ NGN: totalAmountNGN, USD: usd, EUR: eur });
+                setConvertedAmount(paymentCurrency === 'USD' ? usd : paymentCurrency === 'EUR' ? eur : totalAmountNGN);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchConversion();
+    }, [paymentCurrency, totalAmountNGN]);
+
+    const getCurrencySymbol = (currency: string) =>
+        ({ NGN: '₦', USD: '$', EUR: '€' }[currency] || currency);
+
+    // Email validation function
+    const isValidEmail = (emailValue: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(emailValue);
     };
 
-    fetchConversion();
-  }, [paymentCurrency, totalAmountNGN]);
+    // Generate confirmation number
+    const generateConfirmationNumber = (): string => {
+        const randomNumbers = Math.floor(100000 + Math.random() * 900000); // 6 random digits
+        return `JF${randomNumbers}`;
+    };
 
-  const getCurrencySymbol = (currency: string) =>
-    ({ NGN: '₦', USD: '$', EUR: '€' }[currency] || currency);
+    const handleCopyAccount = () => {
+        navigator.clipboard.writeText(bankAccount.accountNumber);
+        setCopiedAccount(true);
+        setTimeout(() => setCopiedAccount(false), 2000);
+    };
 
-  // Email validation function
-  const isValidEmail = (emailValue: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(emailValue);
-  };
+    const handleConfirmTransfer = () => {
+        setIsConfirming(true);
+        setTimeout(() => {
+            setBookingCompleted(true);
+            onConfirm({
+                flight,
+                passengers,
+                flightClass: selectedClass,
+                totalAmount: totalAmountNGN,
+                convertedAmount,
+                currency: paymentCurrency,
+                paymentMethod: 'bank-transfer',
+                bankAccount,
+                transferConfirmed: true,
+                passengerName,
+                email,
+                phoneNumber
+            });
+        }, 2000);
+    };
 
-  // Generate confirmation number
-  const generateConfirmationNumber = (): string => {
-    const randomNumbers = Math.floor(100000 + Math.random() * 900000); // 6 random digits
-    return `JF${randomNumbers}`;
-  };
+    if (bookingCompleted) {
+        return (
+            <div className="booking-modal-overlay">
+                <div className="booking-modal booking-success-modal">
+                    <CheckCircle className="w-16 h-16 text-green-500" />
+                    <h2>Booking Confirmed!</h2>
+                    <p className="success-message">Your flight booking has been successfully completed.</p>
+                    <p className="booking-reference">Reference: {generateConfirmationNumber()}</p>
+                    <button className="btn-success" onClick={onClose}>Done</button>
+                </div>
+            </div>
+        );
+    }
 
-  const handleCopyAccount = () => {
-    navigator.clipboard.writeText(bankAccount.accountNumber);
-    setCopiedAccount(true);
-    setTimeout(() => setCopiedAccount(false), 2000);
-  };
-
-  const handleConfirmTransfer = () => {
-    setIsConfirming(true);
-    setTimeout(() => {
-      setBookingCompleted(true);
-      onConfirm({
-        flight,
-        passengers,
-        flightClass: selectedClass,
-        totalAmount: totalAmountNGN,
-        convertedAmount,
-        currency: paymentCurrency,
-        paymentMethod: 'bank-transfer',
-        bankAccount,
-        transferConfirmed: true,
-        passengerName,
-        email,
-        phoneNumber
-      });
-    }, 2000);
-  };
-
-  if (bookingCompleted) {
     return (
-      <div className="booking-modal-overlay">
-        <div className="booking-modal booking-success-modal">
-          <CheckCircle className="w-16 h-16 text-green-500" />
-          <h2>Booking Confirmed!</h2>
-          <p className="success-message">Your flight booking has been successfully completed.</p>
-          <p className="booking-reference">Reference: {generateConfirmationNumber()}</p>
-          <button className="btn-success" onClick={onClose}>Done</button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
         <div className="booking-modal-overlay" onClick={onClose}>
             <div className="booking-modal" onClick={(e) => e.stopPropagation()}>
                 <button className="close-button" onClick={onClose}>×</button>
@@ -356,8 +356,8 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
 
                         <div className="button-group">
                             <button className="btn-back" onClick={() => setStep(2)}>← Back</button>
-                            <button 
-                                className="btn-next" 
+                            <button
+                                className="btn-next"
                                 onClick={() => setStep(4)}
                                 disabled={!passengerName || !email || !phoneNumber || !isValidEmail(email)}
                             >
@@ -375,8 +375,8 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
                         <div className="currency-selection-section">
                             <h3>Choose Payment Currency</h3>
                             <div className="currency-selector">
-                                <select 
-                                    value={paymentCurrency} 
+                                <select
+                                    value={paymentCurrency}
                                     onChange={(e) => setPaymentCurrency(e.target.value)}
                                     className="currency-select-dropdown"
                                 >

@@ -30,9 +30,9 @@ interface BankAccount {
 
 const BANK_ACCOUNTS: { [key: string]: BankAccount } = {
   NGN: {
-    bank: 'Zenith Bank',
-    accountName: 'JF Travel & Tours Ltd',
-    accountNumber: '1234567890',
+    bank: 'GT Bank',
+    accountName: 'JAFAR GWAMMAJA INVESTMENT LIMITED',
+    accountNumber: '0918510388',
     currency: 'NGN'
   },
   USD: {
