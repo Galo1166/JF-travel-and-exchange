@@ -5,11 +5,11 @@
 ### Account 1: Nigerian Naira (NGN)
 
 ```
-🏦 Bank Name:          ZENITH BANK
-💳 Account Name:       JF Travel & Tours Limited
-#️⃣ Account Number:     1234567890
+🏦 Bank Name:          GT BANK
+💳 Account Name:       JAFAR GWAMMAJA INVESTMENT LIMITED
+#️⃣ Account Number:     0918510388
 💱 Currency:           Nigerian Naira (NGN)
-🌐 SWIFT Code:         ZEIBNGLA
+🌐 SWIFT Code:         GTBNK900
 📍 Country:            Nigeria
 
 ⚠️  IMPORTANT:

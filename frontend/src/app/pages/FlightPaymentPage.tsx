@@ -36,12 +36,12 @@ const CURRENCIES: Currency[] = [
     symbol: '₦',
     icon: '🇳🇬',
     accountDetails: {
-      bank: 'Zenith Bank',
-      accountName: 'JF Travel & Tours Limited',
-      accountNumber: '1234567890',
+      bank: 'GT Bank',
+      accountName: 'JAFAR GWAMMAJA INVESTMENT LIMITED',
+      accountNumber: '0918510388',
       currency: 'NGN',
       code: 'NGN',
-      swift: 'ZEIBNGLA'
+      swift: 'GTBNGLA'
     }
   },
   {
@@ -124,7 +124,7 @@ export const FlightPaymentPage: React.FC<FlightPaymentPageProps> = ({
       }
       // Navigate to booking confirmation
       if (onNavigate && flight) {
-        onNavigate('booking-confirmation', { 
+        onNavigate('booking-confirmation', {
           flight,
           passengers,
           flightClass: flightClass || 'Economy',
@@ -191,7 +191,7 @@ export const FlightPaymentPage: React.FC<FlightPaymentPageProps> = ({
         {account && (
           <div className="account-details-section">
             <h2>Bank Account Details for {selectedCurrencyData?.name}</h2>
-            
+
             <div className="account-card">
               <div className="account-info">
                 <div className="info-item">
