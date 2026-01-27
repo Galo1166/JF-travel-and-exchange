@@ -41,7 +41,7 @@ const CURRENCIES: Currency[] = [
       accountNumber: '0918510388',
       currency: 'NGN',
       code: 'NGN',
-      swift: 'GTBNGLA'
+      swift: 'GTBGLA'
     }
   },
   {
