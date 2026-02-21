@@ -47,5 +47,64 @@ export const FlightService = {
             console.error('Flight search failed:', error);
             throw error;
         }
+    },
+
+    /**
+     * Search for Nigerian local (domestic) flights
+     */
+    searchNigerianLocalFlights: async (params: FlightSearchParams): Promise<FlightOffer[]> => {
+        try {
+            const response = await axios.get<FlightSearchResponse>(`${API_URL}/flights/nigerian-local`, {
+                params
+            });
+            return response.data.data;
+        } catch (error) {
+            console.error('Nigerian local flight search failed:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get static flights for a route (fixed prices)
+     */
+    getStaticFlights: async (params: { origin: string; destination: string; adults?: number }): Promise<FlightOffer[]> => {
+        try {
+            const response = await axios.get<FlightSearchResponse>(`${API_URL}/flights/static`, {
+                params
+            });
+            return response.data.data;
+        } catch (error) {
+            console.error('Static flight fetch failed:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Search flights with fallback to static flights
+     * Tries Amadeus API first, falls back to static flights if unavailable
+     */
+    searchFlightsWithFallback: async (params: FlightSearchParams): Promise<FlightOffer[]> => {
+        try {
+            const response = await axios.get<FlightSearchResponse>(`${API_URL}/flights/search-fallback`, {
+                params
+            });
+            return response.data.data;
+        } catch (error) {
+            console.error('Flight search with fallback failed:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get all available static flight routes
+     */
+    getAvailableRoutes: async (): Promise<string[]> => {
+        try {
+            const response = await axios.get<{ routes: string[] }>(`${API_URL}/flights/available-routes`);
+            return response.data.routes;
+        } catch (error) {
+            console.error('Failed to fetch available routes:', error);
+            throw error;
+        }
     }
 };

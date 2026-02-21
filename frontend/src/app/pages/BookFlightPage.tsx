@@ -28,6 +28,7 @@ export const BookFlightPage: React.FC<BookFlightPageProps> = ({
   const [selectedFlight, setSelectedFlight] = useState<FlightOffer | null>(null);
   const [passengers, setPassengers] = useState(1);
   const [departureDate, setDepartureDate] = useState<string>('');
+  const [searchFilter, setSearchFilter] = useState<'all' | 'nigerian-local'>('all');
 
   const handleSearch = async (params: FlightSearchParams) => {
     setIsLoading(true);
@@ -37,7 +38,17 @@ export const BookFlightPage: React.FC<BookFlightPageProps> = ({
     setDepartureDate(params.departureDate); // Store the departure date from search params
 
     try {
-      const results = await FlightService.searchFlights(params);
+      let results: FlightOffer[];
+      
+      if (searchFilter === 'nigerian-local') {
+        results = await FlightService.searchNigerianLocalFlights(params);
+      } else if (searchFilter === 'all') {
+        // Use fallback search - tries Amadeus first, falls back to static if unavailable
+        results = await FlightService.searchFlightsWithFallback(params);
+      } else {
+        results = await FlightService.searchFlights(params);
+      }
+      
       setFlights(results);
       setHasSearched(true);
     } catch (err) {
@@ -141,6 +152,30 @@ export const BookFlightPage: React.FC<BookFlightPageProps> = ({
         <div className="max-w-6xl mx-auto py-4 px-4 -mt-16 pb-20">
           <FlightSearchForm onSearch={handleSearch} isLoading={isLoading} />
 
+          {/* Flight Type Filter */}
+          <div className="mt-6 flex gap-3 justify-center flex-wrap">
+            <button
+              onClick={() => setSearchFilter('all')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                searchFilter === 'all'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
+              }`}
+            >
+              All Flights
+            </button>
+            <button
+              onClick={() => setSearchFilter('nigerian-local')}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                searchFilter === 'nigerian-local'
+                  ? 'bg-green-600 text-white shadow-lg'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-green-600'
+              }`}
+            >
+              🇳🇬 Nigerian Local
+            </button>
+          </div>
+
           {/* Error Message */}
           {error && (
             <div className="max-w-2xl mx-auto mt-8 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg text-center">
@@ -153,7 +188,7 @@ export const BookFlightPage: React.FC<BookFlightPageProps> = ({
             {isLoading && (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900 mx-auto mb-4"></div>
-                <p className="text-gray-600">Searching for the best flights...</p>
+                <p className="text-gray-600">Searching for {searchFilter === 'nigerian-local' ? 'Nigerian local' : 'the best'} flights...</p>
               </div>
             )}
 
@@ -166,9 +201,14 @@ export const BookFlightPage: React.FC<BookFlightPageProps> = ({
 
             {!isLoading && flights.length > 0 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Available Flights ({flights.length})
-                </h2>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                    {searchFilter === 'nigerian-local' ? '🇳🇬 Nigerian Local Flights' : 'Available Flights'} ({flights.length})
+                  </h2>
+                  {searchFilter === 'nigerian-local' && (
+                    <p className="text-sm text-gray-600">Domestic flights within Nigeria</p>
+                  )}
+                </div>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {flights.map((flight, index) => (
                     <FlightResultCard

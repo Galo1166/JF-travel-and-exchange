@@ -76,3 +76,7 @@ Route::prefix('exchange-rates')->group(function () {
 
 // Flight Search routes
 Route::get('/flights/search', [FlightController::class, 'search']);
+Route::get('/flights/nigerian-local', [FlightController::class, 'nigerianLocal']);
+Route::get('/flights/static', [FlightController::class, 'static']);
+Route::get('/flights/search-fallback', [FlightController::class, 'searchWithFallback']);
+Route::get('/flights/available-routes', [FlightController::class, 'availableRoutes']);

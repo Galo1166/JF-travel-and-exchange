@@ -132,6 +132,121 @@ class AmadeusService
     }
 
     /**
+     * Get Nigerian local flights (domestic flights)
+     * Returns a curated list of local Nigerian airline options
+     */
+    public function getNigerianLocalFlights($params)
+    {
+        // Validate airports
+        $validation = $this->validateAirports($params['origin'], $params['destination']);
+        if (!$validation['valid']) {
+            return ['error' => $validation['error']];
+        }
+
+        // For Nigerian local flights, use Amadeus API search
+        // This ensures real-time data for domestic flights
+        $token = $this->getAccessToken();
+
+        if (!$token) {
+            return ['error' => 'Unable to authenticate with flight service'];
+        }
+
+        try {
+            // Call Amadeus API for domestic flights
+            $response = Http::withToken($token)->get("{$this->baseUrl}/v2/shopping/flight-offers", [
+                'originLocationCode' => $params['origin'],
+                'destinationLocationCode' => $params['destination'],
+                'departureDate' => $params['departureDate'],
+                'adults' => $params['adults'] ?? 1,
+                'currencyCode' => 'NGN',
+                'max' => 15 // Get more options for local flights
+            ]);
+
+            if ($response->successful()) {
+                $flights = $this->transformResponse($response->json());
+                
+                // Filter and enhance results for local flights
+                return $this->enhanceNigerianLocalFlights($flights, $params);
+            }
+
+            $responseData = $response->json();
+            Log::error('Amadeus Local Flights Error: ' . $response->body());
+            
+            if (isset($responseData['errors'])) {
+                $errorMessage = $responseData['errors'][0]['detail'] ?? 'Flight search failed';
+                return ['error' => $errorMessage];
+            }
+            
+            return ['error' => 'No local flights available for this route'];
+
+        } catch (\Exception $e) {
+            Log::error('Amadeus Local Flights Exception: ' . $e->getMessage());
+            return ['error' => 'An unexpected error occurred: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Enhance Nigerian local flights results
+     * Add extra information specific to domestic flights
+     */
+    private function enhanceNigerianLocalFlights($flights, $params)
+    {
+        // Local Nigerian airlines
+        $nigerianAirlines = [
+            'DA' => ['name' => 'Dana Air', 'logo' => 'dana-air'],
+            'BA' => ['name' => 'British Airways', 'logo' => 'british-airways'],
+            'AF' => ['name' => 'Air France', 'logo' => 'air-france'],
+            'ZX' => ['name' => 'Air Nirvana', 'logo' => 'air-nirvana'],
+            'C3' => ['name' => 'Overland Airways', 'logo' => 'overland'],
+            'EO' => ['name' => 'East Africa Airlines', 'logo' => 'east-africa'],
+        ];
+
+        // Add local flight details
+        $enhanced = [];
+        foreach ($flights as $flight) {
+            $flight['isLocalFlight'] = true;
+            $flight['flightType'] = 'domestic';
+            
+            // Add airline details if Nigerian
+            if (isset($nigerianAirlines[$flight['airlineCode']])) {
+                $flight['nigerianAirline'] = true;
+                $flight['airlineLogo'] = $nigerianAirlines[$flight['airlineCode']]['logo'];
+            }
+            
+            // Add estimated flight duration for common routes
+            $flight['estimatedDuration'] = $this->estimateFlightDuration(
+                $flight['from'],
+                $flight['to']
+            );
+            
+            $enhanced[] = $flight;
+        }
+
+        return $enhanced;
+    }
+
+    /**
+     * Estimate flight duration between Nigerian airports
+     */
+    private function estimateFlightDuration($from, $to)
+    {
+        $durations = [
+            'LOS-ABV' => 'PT1H15M',
+            'LOS-KAN' => 'PT1H45M',
+            'LOS-PHC' => 'PT1H30M',
+            'LOS-ENU' => 'PT1H45M',
+            'ABV-KAN' => 'PT1H20M',
+            'ABV-PHC' => 'PT1H15M',
+            'KAN-PHC' => 'PT2H00M',
+        ];
+
+        $key = "$from-$to";
+        $reverseKey = "$to-$from";
+
+        return $durations[$key] ?? $durations[$reverseKey] ?? 'PT2H00M';
+    }
+
+    /**
      * Transform Amadeus response to simpler JSON
      */
     private function transformResponse($data)
