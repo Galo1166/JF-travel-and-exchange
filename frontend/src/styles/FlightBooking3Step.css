@@ -1,5 +1,13 @@
 /* 3-Step Flight Booking Modal Styles */
 
+/* Prevent background scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  touch-action: none;
+}
+
 .booking-modal-overlay {
   position: fixed;
   top: 0;
@@ -12,6 +20,8 @@
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .booking-modal {
@@ -20,17 +30,19 @@
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
   display: flex;
   flex-direction: column;
+  touch-action: manipulation;
 }
 
 @media (max-width: 768px) {
   .booking-modal {
     max-height: 95vh;
+    max-height: 95dvh;
     max-width: 100%;
     border-radius: 12px;
   }
@@ -39,6 +51,7 @@
 @media (max-height: 800px) {
   .booking-modal {
     max-height: 100vh;
+    max-height: 100dvh;
     border-radius: 0;
   }
 }
@@ -47,6 +60,17 @@
   from {
     opacity: 0;
     transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUpMobile {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
   }
   to {
     opacity: 1;
@@ -67,14 +91,18 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  background: none;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border: none;
   font-size: 28px;
   cursor: pointer;
   color: #666;
   z-index: 10;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,21 +115,32 @@
   color: #333;
 }
 
-/* Progress Indicator */
+.close-button:active {
+  background-color: #e0e0e0;
+  color: #333;
+  transform: scale(0.95);
+}
+
+/* Progress Indicator — sticky on mobile */
 .progress-indicator {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 40px 30px 30px;
+  padding: 40px 30px 20px;
   border-bottom: 1px solid #e0e0e0;
+  background: white;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  flex: 1;
+  gap: 6px;
+  flex: 0;
 }
 
 .step span {
@@ -115,6 +154,8 @@
   font-weight: bold;
   color: #666;
   transition: all 0.3s ease;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 .step.active span {
@@ -137,6 +178,7 @@
   color: #666;
   font-weight: 500;
   margin: 0;
+  white-space: nowrap;
 }
 
 .step.active p {
@@ -146,10 +188,12 @@
 
 .progress-line {
   flex: 1;
-  height: 2px;
+  height: 3px;
   background-color: #e0e0e0;
-  margin: 0 10px 20px 10px;
+  margin: 0 8px 20px 8px;
   position: relative;
+  border-radius: 2px;
+  min-width: 12px;
 }
 
 .line-fill {
@@ -157,24 +201,30 @@
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   width: 0%;
   transition: width 0.4s ease;
+  border-radius: 2px;
 }
 
 .line-fill.active {
   width: 100%;
 }
 
-/* Step Content */
+/* Step Content — scrollable area */
 .step-content {
-  padding: 40px 30px;
+  padding: 30px 30px 20px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 .step-content h2 {
   font-size: 24px;
   font-weight: bold;
   color: #333;
-  margin: 0 0 30px 0;
+  margin: 0 0 24px 0;
 }
 
 .step-content h3 {
@@ -228,18 +278,26 @@
 
 .info-row .input-field {
   width: 100%;
-  padding: 10px 12px;
-  font-size: 14px;
+  padding: 12px 14px;
+  font-size: 16px; /* Prevents iOS zoom on focus */
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: inherit;
   transition: border-color 0.2s;
+  min-height: 48px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .info-row .input-field:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.info-row .input-field::placeholder {
+  color: #aaa;
+  font-size: 14px;
 }
 
 .info-row.route .value {
@@ -281,13 +339,20 @@
   border-radius: 12px;
   padding: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   background-color: #fff;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .class-card:hover {
   border-color: #667eea;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.class-card:active {
+  transform: scale(0.98);
+  border-color: #667eea;
 }
 
 .class-card.selected {
@@ -548,49 +613,67 @@
 
 .checkbox-label {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   cursor: pointer;
   font-size: 14px;
   color: #333;
   font-weight: 500;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+  transition: all 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checkbox-label:active {
+  background: #f0f0f0;
 }
 
 .checkbox-label input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
   cursor: pointer;
   accent-color: #667eea;
+  margin-top: 1px;
 }
 
-/* Buttons */
+/* Buttons — sticky footer on mobile */
 .button-group {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  margin-top: 30px;
-  padding-top: 20px;
+  padding: 16px 30px;
   border-top: 1px solid #e0e0e0;
   flex-shrink: 0;
-  order: 99;
+  background: white;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
 }
 
 .btn-cancel,
 .btn-back {
-  flex: 1;
-  padding: 12px 24px;
+  flex: 0.4;
+  padding: 14px 24px;
   border: 2px solid #e0e0e0;
   background-color: white;
   color: #333;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 48px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-cancel:hover,
@@ -599,22 +682,31 @@
   border-color: #999;
 }
 
+.btn-cancel:active,
+.btn-back:active {
+  background-color: #eaeaea;
+  transform: scale(0.98);
+}
+
 .btn-next,
 .btn-confirm {
-  flex: 1;
-  padding: 12px 24px;
+  flex: 0.6;
+  padding: 14px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 48px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-next:hover,
@@ -623,6 +715,13 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
+.btn-next:active,
+.btn-confirm:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.btn-next:disabled,
 .btn-confirm:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -634,20 +733,27 @@
 }
 
 .btn-success {
-  padding: 12px 40px;
+  padding: 14px 40px;
   background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   color: white;
   font-size: 16px;
   font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
+  min-height: 48px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-success:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.btn-success:active {
+  transform: scale(0.98);
 }
 
 /* Success Modal */
@@ -689,357 +795,170 @@
   }
 }
 
-/* Responsive Design - Mobile First */
+/* Responsive Design — Mobile-First Optimized */
 
-/* Extra Small Phones (320px - 375px) */
-@media (max-width: 375px) {
+/* =============================
+   MOBILE: Bottom-sheet pattern (≤640px)
+   ============================= */
+@media (max-width: 640px) {
   .booking-modal-overlay {
     padding: 0;
-  }
-
-  .booking-modal {
-    width: 100vw;
-    max-width: 100vw;
-    max-height: 100vh;
-    border-radius: 0;
-    margin: 0;
-  }
-
-  .close-button {
-    top: 12px;
-    right: 12px;
-    width: 32px;
-    height: 32px;
-    font-size: 20px;
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  .progress-indicator {
-    padding: 12px 8px;
-    gap: 4px;
-  }
-
-  .step {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
-    font-size: 11px;
-    min-width: 28px;
-  }
-
-  .step p {
-    font-size: 8px;
-    margin-top: 2px;
-  }
-
-  .progress-line {
-    margin: 0 2px;
-    height: 2px;
-  }
-
-  .step-content {
-    padding: 12px 12px;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-  }
-
-  .step-content h2 {
-    font-size: 16px;
-    margin-bottom: 12px;
-    font-weight: 700;
-  }
-
-  .step-content h3 {
-    font-size: 13px;
-    margin: 8px 0 4px;
-  }
-
-  .flight-info {
-    font-size: 11px;
-    line-height: 1.3;
-    margin: 4px 0;
-  }
-
-  .flight-class-card,
-  .class-card {
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  .class-card h4,
-  .flight-class-card h4 {
-    font-size: 13px;
-    margin-bottom: 4px;
-  }
-
-  .class-card p,
-  .flight-class-card p {
-    font-size: 11px;
-  }
-
-  .class-options {
-    gap: 8px;
-    flex-direction: column;
-  }
-
-  .currency-cards {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .currency-card {
-    padding: 10px;
-    font-size: 11px;
-    border-radius: 8px;
-  }
-
-  .currency-card h4 {
-    font-size: 12px;
-    margin-bottom: 4px;
-  }
-
-  .currency-price-display {
-    padding: 8px;
-    gap: 6px;
-  }
-
-  .currency-price-display .price-row {
-    font-size: 10px;
-  }
-
-  .currency-price-display .price-label {
-    min-width: 16px;
-  }
-
-  .bank-card {
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-  }
-
-  .account-number-container {
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .copy-button {
-    width: 100%;
-    padding: 8px 10px;
-    font-size: 11px;
-    min-height: 40px;
-    justify-content: center;
-  }
-
-  .button-group {
-    gap: 8px;
-    flex-direction: column;
-    margin-top: 10px;
-  }
-
-  .btn-cancel,
-  .btn-back,
-  .btn-next,
-  .btn-confirm {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 12px;
-    min-height: 44px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .transfer-instructions {
-    padding: 10px;
-    font-size: 11px;
-    line-height: 1.3;
-    border-radius: 8px;
-  }
-
-  .price-tag {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-
-  .benefits-list li {
-    font-size: 11px;
-    line-height: 1.3;
-  }
-
-  .amount-display {
-    font-size: 16px;
-    font-weight: 700;
-  }
-}
-
-/* Small Phones (376px - 480px) */
-@media (max-width: 480px) and (min-width: 376px) {
-  .booking-modal-overlay {
-    padding: 8px;
+    align-items: flex-end;
   }
 
   .booking-modal {
     width: 100%;
     max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
     max-height: 100vh;
-    border-radius: 12px;
+    max-height: 100dvh;
+    border-radius: 0;
     margin: 0;
+    animation: slideUpMobile 0.3s ease-out;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .booking-modal.booking-success-modal {
+    padding: 40px 24px;
+    min-height: auto;
+    justify-content: center;
+  }
+
+  .booking-modal.booking-success-modal h2 {
+    font-size: 22px;
+  }
+
+  .booking-modal.booking-success-modal .success-message {
+    font-size: 14px;
   }
 
   .close-button {
-    top: 8px;
-    right: 8px;
-    width: 36px;
-    height: 36px;
-    font-size: 22px;
-    min-height: 44px;
+    top: 10px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
     min-width: 44px;
-    z-index: 100;
+    min-height: 44px;
+    font-size: 22px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 20;
   }
 
+  /* Progress — compact horizontal strip */
   .progress-indicator {
-    padding: 50px 10px 14px 10px;
-    gap: 6px;
+    padding: 12px 16px;
+    gap: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    border-bottom: 1px solid #e8e8e8;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   }
 
   .step {
+    gap: 4px;
+  }
+
+  .step span {
     width: 32px;
     height: 32px;
-    line-height: 32px;
-    font-size: 12px;
+    font-size: 13px;
     min-width: 32px;
   }
 
   .step p {
     font-size: 9px;
-    margin-top: 3px;
+    letter-spacing: -0.2px;
   }
 
   .progress-line {
-    margin: 0 3px;
-    height: 2px;
+    margin: 0 2px 14px 2px;
+    height: 3px;
+    min-width: 8px;
   }
 
+  /* Scrollable content area */
   .step-content {
-    padding: 14px 12px;
-    max-height: calc(100vh - 120px);
+    padding: 20px 16px 16px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    /* Scroll hint shadow */
+    background:
+      linear-gradient(white 33%, rgba(255, 255, 255, 0)),
+      linear-gradient(rgba(255, 255, 255, 0), white 66%) 0 100%,
+      radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.06), transparent),
+      radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.06), transparent) 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 20px, 100% 20px, 100% 8px, 100% 8px;
+    background-attachment: local, local, scroll, scroll;
   }
 
   .step-content h2 {
-    font-size: 17px;
-    margin-bottom: 14px;
+    font-size: 18px;
+    margin-bottom: 16px;
     font-weight: 700;
+    padding-right: 40px; /* clearance for close button */
   }
 
   .step-content h3 {
     font-size: 14px;
-    margin: 10px 0 6px;
+    margin: 8px 0 10px;
   }
 
-  .flight-info {
+  /* Info cards */
+  .info-card,
+  .passenger-card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .info-row {
+    padding: 10px 0;
+    gap: 6px;
+  }
+
+  .info-row .label {
     font-size: 12px;
-    line-height: 1.4;
-    margin: 6px 0;
   }
 
-  .flight-class-card,
-  .class-card {
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .class-card h4,
-  .flight-class-card h4 {
+  .info-row .value {
     font-size: 14px;
-    margin-bottom: 6px;
   }
 
-  .class-card p,
-  .flight-class-card p {
-    font-size: 12px;
+  .info-row .input-field {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 12px 14px;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  /* Class cards */
+  .class-selection-section {
+    margin-bottom: 20px;
   }
 
   .class-options {
     gap: 10px;
-    flex-direction: column;
   }
 
-  .currency-cards {
-    grid-template-columns: 1fr;
-    gap: 10px;
+  .class-card {
+    padding: 14px;
+    border-radius: 10px;
   }
 
-  .currency-card {
-    padding: 12px;
-    font-size: 12px;
-    border-radius: 8px;
+  .class-header {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
   }
 
-  .currency-card h4 {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .currency-price-display {
-    padding: 10px;
-    gap: 7px;
-  }
-
-  .currency-price-display .price-row {
-    font-size: 11px;
-  }
-
-  .currency-price-display .price-label {
-    min-width: 18px;
-  }
-
-  .bank-card {
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-  }
-
-  .account-number-container {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .copy-button {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 12px;
-    min-height: 44px;
-    justify-content: center;
-  }
-
-  .button-group {
-    gap: 8px;
-    flex-direction: row;
-    margin-top: 12px;
-  }
-
-  .btn-cancel,
-  .btn-back,
-  .btn-next,
-  .btn-confirm {
-    flex: 1;
-    padding: 10px 8px;
-    font-size: 12px;
-    min-height: 44px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .transfer-instructions {
-    padding: 12px;
-    font-size: 12px;
-    line-height: 1.4;
-    border-radius: 8px;
+  .class-header h4 {
+    font-size: 14px;
   }
 
   .price-tag {
@@ -1049,173 +968,243 @@
 
   .benefits-list li {
     font-size: 12px;
-    line-height: 1.4;
-  }
-
-  .amount-display {
-    font-size: 18px;
-    font-weight: 700;
-  }
-}
-
-/* Medium Phones (481px - 640px) */
-@media (max-width: 640px) and (min-width: 481px) {
-  .booking-modal-overlay {
-    padding: 10px;
-  }
-
-  .booking-modal {
-    max-width: 95vw;
-    max-height: 95vh;
-    border-radius: 12px;
-  }
-
-  .close-button {
-    top: 10px;
-    right: 10px;
-    width: 38px;
-    height: 38px;
-    font-size: 24px;
-    min-height: 44px;
-    min-width: 44px;
-    z-index: 100;
-  }
-
-  .progress-indicator {
-    padding: 50px 12px 16px 12px;
-    gap: 8px;
-  }
-
-  .step {
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
-    font-size: 13px;
-  }
-
-  .step p {
-    font-size: 10px;
-  }
-
-  .progress-line {
-    margin: 0 6px;
-  }
-
-  .step-content {
-    padding: 20px 16px;
-    max-height: calc(95vh - 140px);
-    overflow-y: auto;
-  }
-
-  .step-content h2 {
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-
-  .step-content h3 {
-    font-size: 15px;
-  }
-
-  .flight-info {
-    font-size: 13px;
     line-height: 1.5;
   }
 
-  .flight-class-card,
-  .class-card {
-    padding: 14px;
+  /* Price breakdown */
+  .price-breakdown-section {
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
   }
 
-  .class-card h4,
-  .flight-class-card h4 {
-    font-size: 15px;
-  }
-
-  .class-card p,
-  .flight-class-card p {
+  .price-row {
     font-size: 13px;
+    padding: 10px 0;
   }
 
-  .class-options {
-    gap: 12px;
-    flex-direction: column;
+  .total-amount {
+    font-size: 16px;
+  }
+
+  /* Currency & Payment */
+  .currency-selection-section {
+    margin-bottom: 20px;
   }
 
   .currency-cards {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .currency-card {
     padding: 14px;
+    border-radius: 10px;
+    min-height: 48px;
+  }
+
+  .currency-symbol {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .currency-name {
     font-size: 13px;
+    margin-bottom: 8px;
   }
 
   .currency-price-display {
-    padding: 12px;
-    gap: 8px;
+    padding: 10px;
+    gap: 6px;
   }
 
   .currency-price-display .price-row {
-    font-size: 12px;
+    font-size: 11px;
   }
 
-  .currency-price-display .price-label {
-    min-width: 20px;
+  /* Bank details */
+  .bank-details-section {
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
   }
 
   .bank-card {
     padding: 14px;
-    margin: 10px 0;
+    border-radius: 10px;
   }
 
   .account-number-container {
-    flex-direction: row;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .account-number {
+    font-size: 16px;
+    padding: 10px 14px;
+    text-align: center;
+    width: 100%;
   }
 
   .copy-button {
-    padding: 10px 14px;
+    width: 100%;
+    padding: 12px;
+    min-height: 48px;
     font-size: 13px;
-    min-height: 44px;
+    border-radius: 8px;
+    justify-content: center;
+  }
+
+  .transfer-instruction {
+    margin-top: 14px;
+    padding: 12px;
+  }
+
+  .transfer-instruction p {
+    font-size: 13px;
+  }
+
+  /* Confirmation checkbox */
+  .confirmation-section {
+    margin-bottom: 8px;
+  }
+
+  .checkbox-label {
+    font-size: 13px;
+    padding: 14px;
+    gap: 10px;
+  }
+
+  /* Sticky button footer */
+  .button-group {
+    gap: 10px;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid #e8e8e8;
+    background: white;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  .btn-cancel,
+  .btn-back {
+    flex: 0.35;
+    padding: 12px 8px;
+    font-size: 14px;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  .btn-next,
+  .btn-confirm {
+    flex: 0.65;
+    padding: 12px 8px;
+    font-size: 14px;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  .btn-success {
+    min-height: 48px;
+    font-size: 15px;
+    border-radius: 10px;
+    width: 100%;
+  }
+
+  /* Currency dropdown */
+  .currency-select-dropdown {
+    font-size: 16px; /* Prevents iOS zoom */
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .currency-card-display {
+    margin-top: 12px;
+  }
+}
+
+/* =============================
+   EXTRA SMALL PHONES (≤375px)
+   ============================= */
+@media (max-width: 375px) {
+  .step-content {
+    padding: 16px 12px 12px;
+  }
+
+  .step-content h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .step span {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    min-width: 28px;
+  }
+
+  .step p {
+    font-size: 8px;
+  }
+
+  .progress-indicator {
+    padding: 10px 10px;
+  }
+
+  .info-card,
+  .passenger-card {
+    padding: 12px;
+  }
+
+  .class-card {
+    padding: 12px;
   }
 
   .button-group {
-    gap: 10px;
-    flex-direction: row;
+    padding: 10px 12px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    gap: 8px;
   }
 
   .btn-cancel,
   .btn-back,
   .btn-next,
   .btn-confirm {
-    flex: 1;
-    padding: 11px 12px;
     font-size: 13px;
-    min-height: 44px;
-    border-radius: 8px;
+    min-height: 46px;
+    padding: 10px 6px;
   }
 
-  .transfer-instructions {
-    padding: 14px;
-    font-size: 13px;
+  .bank-details-section {
+    padding: 12px;
   }
 
-  .price-tag {
-    font-size: 12px;
-    padding: 5px 10px;
+  .bank-card {
+    padding: 12px;
   }
 
-  .benefits-list li {
-    font-size: 13px;
+  .account-number {
+    font-size: 14px;
+  }
+
+  .price-breakdown-section {
+    padding: 12px;
   }
 }
 
-/* Tablets (641px - 1024px) */
+/* =============================
+   TABLETS (641px - 1024px)
+   ============================= */
 @media (max-width: 1024px) and (min-width: 641px) {
   .booking-modal {
     max-width: 700px;
     max-height: 90vh;
+    max-height: 90dvh;
   }
 
   .button-group {
@@ -1244,7 +1233,9 @@
   }
 }
 
-/* Large Screens (1025px+) */
+/* =============================
+   LARGE SCREENS (1025px+)
+   ============================= */
 @media (min-width: 1025px) {
   .booking-modal {
     max-width: 700px;
@@ -1264,5 +1255,51 @@
   .currency-cards {
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
+  }
+}
+
+/* =============================
+   LANDSCAPE MODE FIX
+   ============================= */
+@media (max-height: 500px) and (orientation: landscape) {
+  .booking-modal {
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .progress-indicator {
+    padding: 8px 16px;
+  }
+
+  .step span {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .step p {
+    display: none;
+  }
+
+  .step-content {
+    padding: 12px 16px;
+  }
+
+  .step-content h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .button-group {
+    padding: 8px 16px;
+  }
+
+  .btn-cancel,
+  .btn-back,
+  .btn-next,
+  .btn-confirm {
+    min-height: 42px;
+    padding: 8px 12px;
   }
 }

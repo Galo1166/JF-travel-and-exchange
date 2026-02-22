@@ -70,6 +70,14 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
     const [loading, setLoading] = useState(false);
     const [allCurrencyPrices, setAllCurrencyPrices] = useState({ NGN: 0, USD: 0, EUR: 0 });
 
+    // Lock background scroll when modal is open
+    useEffect(() => {
+        document.body.classList.add('modal-open');
+        return () => {
+            document.body.classList.remove('modal-open');
+        };
+    }, []);
+
     const classInfo = FLIGHT_CLASSES.find(c => c.id === selectedClass)!;
 
     const basePriceNGN = flight.price;
@@ -191,6 +199,7 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
 
                 {/* Step 1: Flight Information */}
                 {step === 1 && (
+                    <>
                     <div className="step-content">
                         <h2>Flight Information</h2>
 
@@ -233,17 +242,19 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
                             </div>
                         </div>
 
-                        <div className="button-group">
-                            <button className="btn-cancel" onClick={onClose}>Cancel</button>
-                            <button className="btn-next" onClick={() => setStep(2)}>
-                                Next <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </div>
                     </div>
+                    <div className="button-group">
+                        <button className="btn-cancel" onClick={onClose}>Cancel</button>
+                        <button className="btn-next" onClick={() => setStep(2)}>
+                            Next <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </>
                 )}
 
                 {/* Step 2: Flight Class Selection & Price Breakdown */}
                 {step === 2 && (
+                    <>
                     <div className="step-content">
                         <h2>Select Flight Class & Review Price</h2>
 
@@ -297,17 +308,19 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
                             </div>
                         </div>
 
-                        <div className="button-group">
-                            <button className="btn-back" onClick={() => setStep(1)}>← Back</button>
-                            <button className="btn-next" onClick={() => setStep(3)}>
-                                Next <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </div>
                     </div>
+                    <div className="button-group">
+                        <button className="btn-back" onClick={() => setStep(1)}>← Back</button>
+                        <button className="btn-next" onClick={() => setStep(3)}>
+                            Next <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </>
                 )}
 
                 {/* Step 3: Passenger Details */}
                 {step === 3 && (
+                    <>
                     <div className="step-content">
                         <h2>Passenger Details</h2>
 
@@ -354,21 +367,23 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
                             </div>
                         </div>
 
-                        <div className="button-group">
-                            <button className="btn-back" onClick={() => setStep(2)}>← Back</button>
-                            <button
-                                className="btn-next"
-                                onClick={() => setStep(4)}
-                                disabled={!passengerName || !email || !phoneNumber || !isValidEmail(email)}
-                            >
-                                Next <ChevronRight className="w-4 h-4" />
-                            </button>
-                        </div>
                     </div>
+                    <div className="button-group">
+                        <button className="btn-back" onClick={() => setStep(2)}>← Back</button>
+                        <button
+                            className="btn-next"
+                            onClick={() => setStep(4)}
+                            disabled={!passengerName || !email || !phoneNumber || !isValidEmail(email)}
+                        >
+                            Next <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </>
                 )}
 
                 {/* Step 4: Payment Currency & Bank Details */}
                 {step === 4 && (
+                    <>
                     <div className="step-content">
                         <h2>Select Payment Currency & Complete Booking</h2>
 
@@ -469,17 +484,18 @@ export const FlightBookingModal3Step: React.FC<FlightBookingModalProps> = ({
                             </label>
                         </div>
 
-                        <div className="button-group">
-                            <button className="btn-back" onClick={() => setStep(3)}>← Back</button>
-                            <button
-                                className={`btn-confirm ${isConfirming ? 'confirming' : ''}`}
-                                disabled={!transferConfirmed || isConfirming}
-                                onClick={handleConfirmTransfer}
-                            >
-                                {isConfirming ? 'Processing...' : 'Confirm Booking'}
-                            </button>
-                        </div>
                     </div>
+                    <div className="button-group">
+                        <button className="btn-back" onClick={() => setStep(3)}>← Back</button>
+                        <button
+                            className={`btn-confirm ${isConfirming ? 'confirming' : ''}`}
+                            disabled={!transferConfirmed || isConfirming}
+                            onClick={handleConfirmTransfer}
+                        >
+                            {isConfirming ? 'Processing...' : 'Confirm Booking'}
+                        </button>
+                    </div>
+                </>
                 )}
             </div>
         </div>
