@@ -47,8 +47,8 @@ A complete **flight payment system** that lets customers select their preferred 
 | Currency | Bank | Account | SWIFT |
 |----------|------|---------|-------|
 | **NGN** 🇳🇬 | Zenith | 1234567890 | ZEIBNGLA |
-| **USD** 🇺🇸 | Access | 9876543210 | ABNGNGLA |
-| **EUR** 🇪🇺 | GTBank | 5555666677 | GTBINGLA |
+| **USD** 🇺🇸 | GT Bank | 3003404883 | GTBNGLA |
+| **EUR** 🇪🇺 | GT Bank | 3003404163 | GTBNGLA |
 
 All accounts: **JF Travel & Tours Limited**
 
@@ -285,8 +285,8 @@ The flight payment system is ready to use. Users can now:
 ### Bank Details by Currency:
 
 **NGN:** Zenith Bank | 1234567890
-**USD:** Access Bank | 9876543210
-**EUR:** GTBank | 5555666677
+**USD:** GT Bank | 3003404883
+**EUR:** GT Bank | 3003404163
 
 All to: **JF Travel & Tours Limited**
 

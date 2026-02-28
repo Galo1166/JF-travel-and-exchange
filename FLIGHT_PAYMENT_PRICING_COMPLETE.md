@@ -109,7 +109,7 @@ const getConvertedPrice = (currency: string): number => {
    ```
    System displays:
    - Amount to Transfer: $ 694.44
-   - Bank Details: Access Bank, Account 9876543210
+   - Bank Details: GT Bank, Account 3003404883
    - Reference: "Base Price in NGN: ₦1,000,000"
    ```
 

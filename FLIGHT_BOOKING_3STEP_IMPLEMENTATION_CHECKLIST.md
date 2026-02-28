@@ -39,8 +39,8 @@
 
 ### Bank Account Configuration
 - [x] NGN (Zenith Bank): 1234567890
-- [x] USD (Access Bank): 9876543210
-- [x] EUR (GTBank): 5555666677
+- [x] USD (GT Bank): 3003404883
+- [x] EUR (GT Bank): 3003404163
 
 ### Flight Classes
 - [x] Economy (1x multiplier, 3 benefits)

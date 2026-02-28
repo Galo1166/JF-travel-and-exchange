@@ -36,8 +36,8 @@ interface BankAccount {
 
 const BANK_ACCOUNTS: Record<string, BankAccount> = {
     NGN: { bank: 'GT Bank', accountName: 'JAFAR GWAMMAJA INVESTMENT LIMITED', accountNumber: '0918510388', currency: 'NGN' },
-    USD: { bank: 'Access Bank', accountName: 'JF Travel & Tours Ltd', accountNumber: '9876543210', currency: 'USD' },
-    EUR: { bank: 'GTBank', accountName: 'JF Travel & Tours Ltd', accountNumber: '5555666677', currency: 'EUR' }
+    USD: { bank: 'GT bank', accountName: 'Jafar gwammaja investment limited', accountNumber: '3003404883', currency: 'USD' },
+    EUR: { bank: 'GT bank', accountName: 'Jafar gwammaja investment limited', accountNumber: '3003404163', currency: 'EUR' }
 };
 
 const FLIGHT_CLASSES = [

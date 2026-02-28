@@ -136,7 +136,7 @@ When USD selected:
 Amount to Transfer: $ 347.22
 Base Price in NGN: ₦500,000  ← Reference shown
 Bank: Access Bank
-Account: 9876543210
+Account: 3003404883
 ```
 
 ---

@@ -62,8 +62,8 @@ Base Price in NGN: ₦500,000
 | Currency | Bank | Account Number | SWIFT |
 |----------|------|----------------|-------|
 | NGN | Zenith Bank | 1234567890 | ZEIBNGLA |
-| USD | Access Bank | 9876543210 | ABNGNGLA |
-| EUR | Guaranty Trust Bank | 5555666677 | GTBINGLA |
+| USD | GT Bank | 3003404883 | GTBNGLA |
+| EUR | GT Bank | 3003404163 | GTBNGLA |
 
 ## File Changes
 

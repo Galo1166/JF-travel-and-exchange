@@ -57,12 +57,12 @@ A complete, production-ready **Flight Payment System** with multi-currency suppo
 
 ### 🇺🇸 US Dollar (USD)
 - **Bank**: Access Bank
-- **Account**: 9876543210
+- **Account**: 3003404883
 - **SWIFT**: ABNGNGLA
 
 ### 🇪🇺 Euro (EUR)
 - **Bank**: Guaranty Trust Bank
-- **Account**: 5555666677
+- **Account**: 3003404163
 - **SWIFT**: GTBINGLA
 
 **All accounts**: JF Travel & Tours Limited

@@ -55,8 +55,8 @@ Successfully implemented a dedicated **Flight Payment Page** that allows users t
 
 ### 2. **Bank Account Details**
    - **Zenith Bank** (NGN) - Account: 1234567890
-   - **Access Bank** (USD) - Account: 9876543210
-   - **Guaranty Trust Bank** (EUR) - Account: 5555666677
+   - **GT Bank** (USD) - Account: 3003404883
+   - **GT Bank** (EUR) - Account: 3003404163
    - Each account includes:
      - Bank name
      - Account name (JF Travel & Tours Limited)

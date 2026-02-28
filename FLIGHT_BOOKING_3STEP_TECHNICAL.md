@@ -188,13 +188,13 @@ const BANK_ACCOUNTS: { [key: string]: BankAccount } = {
   USD: {
     bank: 'Access Bank',
     accountName: 'JF Travel & Tours Ltd',
-    accountNumber: '9876543210',
+    accountNumber: '3003404883',
     currency: 'USD'
   },
   EUR: {
     bank: 'GTBank',
     accountName: 'JF Travel & Tours Ltd',
-    accountNumber: '5555666677',
+    accountNumber: '3003404163',
     currency: 'EUR'
   }
 };

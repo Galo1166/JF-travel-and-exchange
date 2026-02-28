@@ -65,7 +65,7 @@ Bank Account Details for United States Dollar
 
 Bank Name:          [Access Bank]  [Copy]
 Account Name:       [JF Travel & Tours Limited]  [Copy]
-Account Number:     [9876543210]  [Copy]
+Account Number:     [3003404883]  [Copy]
 Currency:           [USD]
 SWIFT Code:         [ABNGNGLA]  [Copy]
 
@@ -90,7 +90,7 @@ Bank Account Details for Euro
 
 Bank Name:          [Guaranty Trust Bank]  [Copy]
 Account Name:       [JF Travel & Tours Limited]  [Copy]
-Account Number:     [5555666677]  [Copy]
+Account Number:     [3003404163]  [Copy]
 Currency:           [EUR]
 SWIFT Code:         [GTBINGLA]  [Copy]
 
@@ -161,8 +161,8 @@ Base Price in NGN: ₦1,000,000
 ### ✅ Correct Bank Accounts
 Each currency selection automatically shows the correct bank account:
 - **NGN** → Zenith Bank (1234567890)
-- **USD** → Access Bank (9876543210)
-- **EUR** → GTBank (5555666677)
+- **USD** → GT Bank (3003404883)
+- **EUR** → GT Bank (3003404163)
 
 ### ✅ Copy-to-Clipboard
 All bank details can be copied with one click:

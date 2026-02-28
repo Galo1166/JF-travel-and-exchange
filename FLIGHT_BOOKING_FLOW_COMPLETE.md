@@ -57,8 +57,8 @@ Payment Confirmed
 
 ### Payment Currency Selection
 - **NGN Account**: Zenith Bank - 1234567890
-- **USD Account**: Access Bank - 9876543210  
-- **EUR Account**: GTBank - 5555666677
+- **USD Account**: GT Bank - 3003404883  
+- **EUR Account**: GT Bank - 3003404163
 
 ### Confirmation Display
 - Dynamic currency symbol (₦ for NGN, € for EUR, $ for USD)

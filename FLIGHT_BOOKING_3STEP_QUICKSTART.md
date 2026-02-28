@@ -78,8 +78,8 @@ const handleBookingConfirm = (bookingDetails: BookingDetails) => {
 - Automatic price conversion
 - Bank account details change based on currency:
   - **NGN** → Zenith Bank (1234567890)
-  - **USD** → Access Bank (9876543210)
-  - **EUR** → GTBank (5555666677)
+  - **USD** → GT Bank (3003404883)
+  - **EUR** → GT Bank (3003404163)
 - Copy account number button
 - Transfer confirmation checkbox
 

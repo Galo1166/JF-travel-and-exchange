@@ -93,7 +93,7 @@ $ 694.44
 Use your booking reference as the transfer description
 
 Bank: Access Bank
-Account: 9876543210
+Account: 3003404883
 
 Base Price in NGN: ₦1,000,000
 ```

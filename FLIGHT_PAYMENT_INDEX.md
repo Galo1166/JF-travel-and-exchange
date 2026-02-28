@@ -124,8 +124,8 @@
 | Currency | Bank | Account | Available |
 |----------|------|---------|-----------|
 | NGN 🇳🇬 | Zenith | 1234567890 | ✅ Yes |
-| USD 🇺🇸 | Access | 9876543210 | ✅ Yes |
-| EUR 🇪🇺 | GTBank | 5555666677 | ✅ Yes |
+| USD 🇺🇸 | GT Bank | 3003404883 | ✅ Yes |
+| EUR 🇪🇺 | GT Bank | 3003404163 | ✅ Yes |
 
 ### Files Summary
 | File | Type | Status | Purpose |

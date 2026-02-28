@@ -23,11 +23,11 @@
 ### Account 2: United States Dollar (USD)
 
 ```
-🏦 Bank Name:          ACCESS BANK
-💳 Account Name:       JF Travel & Tours Limited
-#️⃣ Account Number:     9876543210
+🏦 Bank Name:          GT BANK
+💳 Account Name:       JAFAR GWAMMAJA INVESTMENT LIMITED
+#️⃣ Account Number:     3003404883
 💱 Currency:           United States Dollar (USD)
-🌐 SWIFT Code:         ABNGNGLA
+🌐 SWIFT Code:         GTBNGLA
 📍 Country:            Nigeria
 
 ⚠️  IMPORTANT:
@@ -42,11 +42,11 @@
 ### Account 3: Euro (EUR)
 
 ```
-🏦 Bank Name:          GUARANTY TRUST BANK
-💳 Account Name:       JF Travel & Tours Limited
-#️⃣ Account Number:     5555666677
+🏦 Bank Name:          GT BANK
+💳 Account Name:       JAFAR GWAMMAJA INVESTMENT LIMITED
+#️⃣ Account Number:     3003404163
 💱 Currency:           Euro (EUR)
-🌐 SWIFT Code:         GTBINGLA
+🌐 SWIFT Code:         GTBNGLA
 📍 Country:            Nigeria
 
 ⚠️  IMPORTANT:
@@ -94,8 +94,8 @@ Once transfer is complete:
 ### Q: Which account should I use?
 **A:** Use the account matching your payment currency:
 - Paying in NGN? → Use GT Bank
-- Paying in USD? → Use Access Bank
-- Paying in EUR? → Use GTBank
+- Paying in USD? → Use GT Bank
+- Paying in EUR? → Use GT Bank
 
 ### Q: What if I transfer to the wrong account?
 **A:** Contact support immediately with:
@@ -179,8 +179,8 @@ Provide:
 
 **Authorized Banks:**
 1. GT Bank (NGN Account)
-2. Access Bank (USD Account)
-3. Guaranty Trust Bank (EUR Account)
+2. GT Bank (USD Account)
+3. GT Bank (EUR Account)
 
 **Payment Purpose:** Flight booking and reservations
 
@@ -194,8 +194,8 @@ Provide:
 
 **Using SWIFT Codes:**
 1. GT Bank SWIFT: **GTBNGLA**
-2. Access Bank SWIFT: **ABNGNGLA**
-3. GTBank SWIFT: **GTBINGLA**
+2. GT Bank SWIFT: **GTBNGLA**
+3. GT Bank SWIFT: **GTBNGLA**
 
 **Typical Transfer Fees:**
 - Bank to bank: Usually 10-50 USD equivalent

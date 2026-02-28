@@ -37,7 +37,7 @@ Booking Confirmed ✓
 |--------|-------|
 | **Bank** | Access Bank |
 | **Account Name** | JF Travel & Tours Limited |
-| **Account Number** | 9876543210 |
+| **Account Number** | 3003404883 |
 | **Currency** | USD |
 | **SWIFT** | ABNGNGLA |
 
@@ -46,7 +46,7 @@ Booking Confirmed ✓
 |--------|-------|
 | **Bank** | Guaranty Trust Bank |
 | **Account Name** | JF Travel & Tours Limited |
-| **Account Number** | 5555666677 |
+| **Account Number** | 3003404163 |
 | **Currency** | EUR |
 | **SWIFT** | GTBINGLA |
 

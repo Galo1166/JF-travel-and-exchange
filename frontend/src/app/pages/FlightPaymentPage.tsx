@@ -50,12 +50,12 @@ const CURRENCIES: Currency[] = [
     symbol: '$',
     icon: '🇺🇸',
     accountDetails: {
-      bank: 'Access Bank',
-      accountName: 'JF Travel & Tours Limited',
-      accountNumber: '9876543210',
+      bank: 'GT bank',
+      accountName: 'Jafar gwammaja investment limited',
+      accountNumber: '3003404883',
       currency: 'USD',
       code: 'USD',
-      swift: 'ABNGNGLA'
+      swift: 'GTBNGLA'
     }
   },
   {
@@ -64,12 +64,12 @@ const CURRENCIES: Currency[] = [
     symbol: '€',
     icon: '🇪🇺',
     accountDetails: {
-      bank: 'Guaranty Trust Bank',
-      accountName: 'JF Travel & Tours Limited',
-      accountNumber: '5555666677',
+      bank: 'GT bank',
+      accountName: 'Jafar gwammaja investment limited',
+      accountNumber: '3003404163',
       currency: 'EUR',
       code: 'EUR',
-      swift: 'GTBINGLA'
+      swift: 'GTBNGLA'
     }
   }
 ];

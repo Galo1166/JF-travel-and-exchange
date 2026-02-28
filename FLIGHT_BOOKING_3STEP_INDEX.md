@@ -204,11 +204,11 @@ NGN: Zenith Bank
      Name: JF Travel & Tours Ltd
 
 USD: Access Bank
-     Account: 9876543210
+     Account: 3003404883
      Name: JF Travel & Tours Ltd
 
 EUR: GTBank
-     Account: 5555666677
+     Account: 3003404163
      Name: JF Travel & Tours Ltd
 ```
 

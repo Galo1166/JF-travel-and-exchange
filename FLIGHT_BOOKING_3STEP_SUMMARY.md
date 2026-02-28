@@ -25,8 +25,8 @@ Your flight booking modal now has a professional 3-step guided experience:
 - Price automatically converts to selected currency
 - **Correct bank account details shown based on currency:**
   - **NGN** → Zenith Bank (1234567890)
-  - **USD** → Access Bank (9876543210)
-  - **EUR** → GTBank (5555666677)
+  - **USD** → GT Bank (3003404883)
+  - **EUR** → GT Bank (3003404163)
 - Bank details include:
   - Bank name
   - Account name
